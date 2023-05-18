@@ -6,27 +6,26 @@ GSoC 2023 - CRS: WAF Performance Testing Framework
 >
 > Organisation: OWASP Foundation
 >
-> Mentor: 
+> Mentor: fzipitria, Christian Folini
 >
 > Link to PRs:
 >
 > Link to GSOC 2023 Project List: https://summerofcode.withgoogle.com/programs/2023/projects/jdv2MaJR
 
+
 ---
 
-## Table of Contents
+### Table of Contents
 
-[Introduction](#introduction)
-- [Project Details](#project-details)
-- [Define the problem](#define-the-problem)
-- [Why is it important to solve this problem?](#why-is-it-important-to-solve-this-problem)
-- [Is there any prior work done on this?](#is-there-any-prior-work-done-on-this)
-- [What is the expected outcome?](#what-is-the-expected-outcome?)
-- [How will it benefit the community?](#how-will-it-benefit-the-community?)
-
-[Implementation](#implementation)
-
-[References](#references)
+- [Introduction](#introduction)
+    - [Project Details](#project-details)
+    - [Define the problem](#define-the-problem)
+    - [Why is it important to solve this problem?](#why-is-it-important-to-solve-this-problem)
+    - [Is there any prior work done on this?](#is-there-any-prior-work-done-on-this)
+    - [What is the expected outcome?](#what-is-the-expected-outcome?)
+    - [How will it benefit the community?](#how-will-it-benefit-the-community?)
+- [Implementation](#implementation)
+- [References](#references)
 
 ---
 
@@ -45,8 +44,6 @@ A list of deliverables includes:
 7. Documentation.
 
 ## Project Details
-
----
 
 > WIP
 
@@ -72,10 +69,6 @@ A list of deliverables includes:
 
 ## Implementation
 
----
-
 > WIP
 
 ## References
-
----
