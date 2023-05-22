@@ -20,3 +20,30 @@
     - Establish a work environment. (ModSecurity 2.9)
     - Research on existing performance testing framework.
     - Reading documentations.
+
+# Week 2
+
+> May 25, 2023
+>
+> Thread: N/A
+
+0. Agenda
+    - WIP
+
+1. Progress
+    - Review and update the proposals
+    - Establish a work environment
+    - Research on existing performance testing framework
+    - Reading documentation
+
+2. Findings & Ideas
+    - WIP
+
+3. Impediment
+    - Complexity of implementing CRS with services. (e.g., different ways to configure)
+
+4. Others
+    - WIP
+
+5. Next Actions
+    - WIP
