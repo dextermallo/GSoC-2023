@@ -32,6 +32,7 @@
     - [x] [#2](https://github.com/dextermallo/GSoC-2023/issues/2) Establish a work environment
     - [ ] [#3](https://github.com/dextermallo/GSoC-2023/issues/3) Research on existing performance testing framework (`WIP`: collect some sources but yet to read)
     - [ ] Reading documentation (CRS/go-ftw) (`WIP`: contiune learning some args and workflow)
+    - [x] Reading some suggestions for GSoC and other community topics 
 
 2. Findings & Ideas
     - N/A
