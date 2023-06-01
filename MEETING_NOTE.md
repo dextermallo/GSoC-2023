@@ -57,7 +57,7 @@
 
 > Jun 1, 2023
 >
-> Thread: NA
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1685631723419749
 
 1. Progress
     - [x] [#3](https://github.com/dextermallo/GSoC-2023/issues/3) Continue researching other approaches (benchmarking in the same container; using another container to test the WAF container; server-side testing)
@@ -65,10 +65,18 @@
     - [x] [#3](https://github.com/dextermallo/GSoC-2023/issues/3) Research more about different matrix/matrix collection
 
 2. Impediments
-    - The PoC to evaluate performance before/after a rule change seems not obvious (`@rx to !@rx`), looking for better changes. (suggested by Christian: take any complex regex and replace it with a simple very version)
+
+- The PoC to evaluate performance before/after a rule change seems not obvious (@rx to !@rx), looking for better changes. (suggested by Christian: take any complex regex and replace it with a simple very version)
 
 3. Others
 
-- Define the scope: What matrices are we looking for
+- Define the scope: discussion regarding the matrices we can collect currently and other possible matrices
+- Concerns for log analysis: log analysis may encounter challenges, like log format may differ among platforms (ModSec v2 and v3) and accuracy concerns. 
+- Accuracy: the behaviour of evaluating performance itself affects the performance. Nonetheless, as the framework is to evaluate the performance change, the accuracy issue can be addressed later on.
 
 4. Next Actions
+
+- Research on other server-side testing approaches (e.g., kernel-level or 3rd party tools like Prometheus)
+- Continue working on PoC (both client-side and server-side)
+- Check the existing log settings for CRS (e.g., can the log be set to milliseconds?)
+- Research if there are other matrices we can collect (e.g., low-level matrices)
