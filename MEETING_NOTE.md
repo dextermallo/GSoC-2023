@@ -1,4 +1,4 @@
-# Week 1
+# Meeting 1
 
 > May 11, 2023
 >
@@ -21,7 +21,7 @@
     - Research on existing performance testing framework.
     - Reading documentations.
 
-# Week 2
+# Meeting 2
 
 > May 25, 2023
 >
@@ -52,3 +52,23 @@
     - Update the proposal
     - Clarify/refine the draft of the framework
     - Research more about different matrix/matrix collection
+
+# Meeting 3
+
+> Jun 1, 2023
+>
+> Thread: NA
+
+1. Progress
+    - [x] [#3](https://github.com/dextermallo/GSoC-2023/issues/3) Continue researching other approaches (benchmarking in the same container; using another container to test the WAF container; server-side testing)
+    - [x] [#3](https://github.com/dextermallo/GSoC-2023/issues/3) Clarify/refine the draft of the framework
+    - [x] [#3](https://github.com/dextermallo/GSoC-2023/issues/3) Research more about different matrix/matrix collection
+
+2. Impediments
+    - The PoC to evaluate performance before/after a rule change seems not obvious (`@rx to !@rx`), looking for better changes. (suggested by Christian: take any complex regex and replace it with a simple very version)
+
+3. Others
+
+- Define the scope: What matrices are we looking for
+
+4. Next Actions
