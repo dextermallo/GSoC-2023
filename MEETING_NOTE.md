@@ -80,3 +80,31 @@
 - Continue working on PoC (both client-side and server-side)
 - Check the existing log settings for CRS (e.g., can the log be set to milliseconds?)
 - Research if there are other matrices we can collect (e.g., low-level matrices)
+
+# Meeting 3
+
+> Jun 1, 2023
+>
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1686240412879279
+
+1. Progress
+
+- [x] [[#3]](https://github.com/dextermallo/GSoC-2023/issues/3) Research other server-side testing approaches: Prometheus/Elasticsearch/sysdig
+- [x] Continue working on PoC: test on another rule
+- [x] [[#4]](https://github.com/dextermallo/GSoC-2023/issues/4) Check the existing log settings for CRS (e.g., can the log be set to milliseconds?)
+- [x] [[#5]](https://github.com/dextermallo/GSoC-2023/issues/5) Research if there are other matrices we can collect (e.g., low-level matrices): syscall; some literature review
+- [x] [[#3]](https://github.com/dextermallo/GSoC-2023/issues/3#issuecomment-1581217483) redraft proposal with sidecar pattern
+- [x] [[coreruleset#3232]](https://github.com/coreruleset/coreruleset/pull/3232) A PR for CRS documentation
+
+2. Others
+
+- Suggestions for log analysis: use audit_log instead of debug_log
+- Framework with sidecar pattern can be refined with more details: rephrase the components (high-level) and define the interface. (e.g., two log components and one report component phrase the data in different formats. A user can query from the report component to get the performance data)
+
+3. Next Actions
+
+- [ ] Research on audit_log (ModSec v2)
+- [ ] Refine the framework with high-level components and interfaces
+- [ ] Research for some feedback (concurrency issue, methodology for cross-platform evaluation, etc.)
+
+# Meeting 4
