@@ -159,7 +159,7 @@ The sources of matrices can be classified into three categories:
     - Network I/O
     - Disk I/O
 2. Client-side: Related to the client's perspective. For example:
-    - **Error rate**: We can compare before/after the test case pass percentage. Also, we can use `modsec_audit.log` to compare the diff and see what happens
+    - **Error rate**: We can compare before/after the test case pass percentage. Also, we can use `error.log` to compare the diff and see what happens
     - **Connection Time**: by [adding configuration in nginx](https://stackoverflow.com/questions/69534518/what-does-connection-time-mean-in-nginx)
     - **RTT**: currently in stdout
     - **Concurrency Maximum**: use utils such as [ab](https://httpd.apache.org/docs/2.4/programs/ab.html)
