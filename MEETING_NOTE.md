@@ -81,9 +81,9 @@
 - Check the existing log settings for CRS (e.g., can the log be set to milliseconds?)
 - Research if there are other matrices we can collect (e.g., low-level matrices)
 
-# Meeting 3
+# Meeting 4
 
-> Jun 1, 2023
+> Jun 8, 2023
 >
 > Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1686240412879279
 
@@ -103,8 +103,40 @@
 
 3. Next Actions
 
-- [ ] Research on audit_log (ModSec v2)
-- [ ] Refine the framework with high-level components and interfaces
-- [ ] Research for some feedback (concurrency issue, methodology for cross-platform evaluation, etc.)
+- Research on audit_log (ModSec v2)
+- Refine the framework with high-level components and interfaces
+- Research for some feedback (concurrency issue, methodology for cross-platform evaluation, etc.)
 
-# Meeting 4
+# Meeting 5
+
+> Jun 15, 2023
+>
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1686850982091809
+
+1. Progress
+
+- [ ] Research on audit_log (ModSec v2): didn't have time to look into it :(
+- [x] Refine the framework with high-level components and interfaces: changing terms to high-level items; adding new components and matrices.
+- [x] Research for some feedback (concurrency issue, methodology for cross-platform evaluation, etc.): done some research on eBPF and added it into the framework (host-level collector)
+
+2. Others
+
+- A merit contributed by the framework is that a user can integrate any kind of 3rd-party utils into the framework easily. Specifically, they only need to implement a data parser and follow the predefined interface for the integrations.
+- A suggestion for a PoC testing (I am testing on some regex changes): Load a single rule at a time for testing
+
+3. Next Actions
+
+- A PoC to test the framework. Especially, interfaces, a data parser and a server-side collector to test the pipeline. 
+- Initialise testing libs for the performance framework (e.g., pytest)
+
+# Meeting 6
+
+> Jun 22, 2023
+>
+> Thread: N/A
+
+1. Progress
+
+2. Others
+
+3. Next Actions
