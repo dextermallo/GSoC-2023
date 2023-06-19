@@ -21,3 +21,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 collect-cAdvisor = 'src.cAdvisor.collector:main'
 visualize = 'src.visualizer.main:main'
+collect-ftw = 'src.ftw.collector:main'

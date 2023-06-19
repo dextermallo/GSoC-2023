@@ -2,28 +2,28 @@ import docker
 import requests
 import time
 import atexit
-import os
+import sys
 import json
 from src.interface.IDataCollector import IDataCollector
 from src.interface.DataFormat import DataFormat, DataFormatEncoder
-from src.utils.loader import logger
-
+from src.utils.logger import logger
+from src.utils.const import DATA_PATH, WAF_CONTAINER_NAME, CADVISOR_ENDPOINT
 
 class CAdvisorCollector(IDataCollector):
     waf_container_name: str
     src_path: str
     raw_dist_path: str
     parsed_dist_path: str
-    group_suffix: str
+    group_id: str
     data_list = []
     
 
-    def __init__(self, waf_container_name: str, src_path: str):
-        self.waf_container_name = waf_container_name
-        self.src_path = src_path
-        self.group_suffix = self._generate_group_suffix()
-        self.raw_dist_path = f"{os.getenv('DATA_PATH')}/{self.group_suffix}/cAdvisor.raw.json"
-        self.parsed_dist_path = f"{os.getenv('DATA_PATH')}/{self.group_suffix}"
+    def __init__(self, group_id: str):
+        self.waf_container_name = WAF_CONTAINER_NAME
+        self.src_path = CADVISOR_ENDPOINT
+        self.group_id = group_id if group_id is not None else self._generate_group_id()
+        self.raw_dist_path = f"{DATA_PATH}/{self.group_id}/cAdvisor.raw.json"
+        self.parsed_dist_path = f"{DATA_PATH}/{self.group_id}"
         
         try:
             if self.raw_dist_path is None:
@@ -98,19 +98,17 @@ class CAdvisorCollector(IDataCollector):
                 memory_working_set.append(timestamp, memory["working_set"])
                 memory_rss.append(timestamp, memory["rss"])
             
-            super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.cpu_total_usage.json", cpu_total_usage, cls=DataFormatEncoder)
-            super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.cpu_user_usage.json", cpu_user_usage, cls=DataFormatEncoder)
-            super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.cpu_system_usage.json", cpu_system_usage, cls=DataFormatEncoder)
-            super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.memory_usage.json", memory_usage, cls=DataFormatEncoder)
-            super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.memory_working_set.json", memory_working_set, cls=DataFormatEncoder)
-            super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.memory_rss.json", memory_rss, cls=DataFormatEncoder)
+        super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.cpu_total_usage.json", cpu_total_usage, cls=DataFormatEncoder)
+        super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.cpu_user_usage.json", cpu_user_usage, cls=DataFormatEncoder)
+        super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.cpu_system_usage.json", cpu_system_usage, cls=DataFormatEncoder)
+        super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.memory_usage.json", memory_usage, cls=DataFormatEncoder)
+        super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.memory_working_set.json", memory_working_set, cls=DataFormatEncoder)
+        super()._save_json_file(f"{self.parsed_dist_path}/cAdvisor.memory_rss.json", memory_rss, cls=DataFormatEncoder)
 
+        file.close()
 
 def main():
-    cAdvisor = CAdvisorCollector(
-        os.getenv("WAF_CONTAINER_NAME"),
-        os.getenv("CADVISOR_ENDPOINT")
-    )
+    cAdvisor_collector = CAdvisorCollector(sys.argv[1])
 
-    atexit.register(cAdvisor.parse_data)
-    cAdvisor.read_data()
+    atexit.register(cAdvisor_collector.parse_data)
+    cAdvisor_collector.read_data()

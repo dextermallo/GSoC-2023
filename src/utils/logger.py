@@ -1,5 +1,4 @@
 import logging
-from dotenv import load_dotenv
 
 
 # set up logger
@@ -9,6 +8,3 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
-
-# load env
-load_dotenv()

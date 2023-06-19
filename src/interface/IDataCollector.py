@@ -4,7 +4,7 @@ import secrets
 import string
 from abc import ABC, abstractmethod
 from typing import Type
-from src.utils.loader import logger
+from src.utils.logger import logger
 from src.interface.DataFormat import DataFormat
 
 class IDataCollector(ABC):

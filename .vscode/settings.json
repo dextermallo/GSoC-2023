@@ -1,6 +1,17 @@
 {
     "cSpell.words": [
+        "CADVISOR",
+        "diskio",
+        "dotenv",
+        "GOFTW",
         "GSOC",
-        "OWASP"
+        "hspace",
+        "levelname",
+        "OWASP",
+        "xticks",
+        "yticks"
+    ],
+    "python.analysis.extraPaths": [
+        "./src/interface"
     ]
 }

@@ -1,17 +1,14 @@
+import matplotlib.pyplot as plt
 import json
 import argparse
-import matplotlib.pyplot as plt
 from datetime import datetime
-from src.utils.loader import logger
 from typing import List
 from collections import UserDict
-from src.interface.DataFormat import DataFormat
 import os
+from src.interface.DataFormat import DataFormat
+from src.utils.logger import logger
+from src.utils.const import DATA_PATH
 
-
-class TwoArgsAction(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, values[:2])  # Store the first two arguments as a list
 
 class DataGroup:
     group_id: str
@@ -29,7 +26,7 @@ class Visualizer:
     figure: plt.Figure
     
     def __init__(self):
-        self.src_path = os.getenv("DATA_PATH")
+        self.src_path = DATA_PATH
         
         if (self.src_path is None):
             raise Exception("DATA_PATH not set")
@@ -40,19 +37,18 @@ class Visualizer:
         
         add_group_parser = subparsers.add_parser('add-group')
         add_group_parser.add_argument('group_id', type=str)
+        add_group_parser.add_argument('-c', '--compress-time', action='store_true')
         
         remove_group_parser = subparsers.add_parser('remove-group')
         remove_group_parser.add_argument('group_id', type=str)
         
         subparsers.add_parser('info')
         subparsers.add_parser('quit')
-        
-        self.figure = plt.figure()
+
+        self.figure = None
         self.data_groups = {}
         self.data_length = 0
 
-    # -g <group> -a <data>
-    # 540 before 787 after
     def __add_group(self, group: str):
         if (group is None):
             raise Exception("Group not specified")
@@ -78,6 +74,9 @@ class Visualizer:
         self.data_length = data_len_cnt
 
     
+    """
+    @TODO: impl
+    """
     def __remove_group(self, group: str):
         pass
     
@@ -88,10 +87,9 @@ class Visualizer:
             choice = input("Enter 'q' to quit or 'u' to update the chart: ").split()
             args = self.parser.parse_args(choice)
 
-
             if args.command == "add-group":
                 self.__add_group(args.group_id)
-                self.__render_plt()
+                self.__render_plt(args.compress_time)
             elif args.command == "remove-group":
                 self.__remove_group(args.group_id)
             elif args.command == "info":
@@ -101,7 +99,7 @@ class Visualizer:
             else:
                 continue
         
-        plt.close(self.figure)
+        plt.close('all')
 
     def __load_data(self, filename: str) -> List[DataFormat]:
         logger.debug(f"start: __load_data({filename})")
@@ -113,10 +111,11 @@ class Visualizer:
             logger.error(f"File {filename} not found")
             return None
     
-    def __render_plt(self):
+    def __render_plt(self, compress_time: bool):
         logger.debug(f"start: __render_plt()")
 
-        plt.clf()
+        plt.close('all')
+
         self.fig, axes = plt.subplots(self.data_length)
         plt.subplots_adjust(hspace=None)
         self.fig.tight_layout()
@@ -127,12 +126,24 @@ class Visualizer:
             idx, used_color = 0, colors.pop()
 
             for key, value in self.data_groups[group_id].data.items():
-                axes[idx].plot(self.__standardize_timestamp(value["x_data"]), value["y_data"], color=used_color)
+                if compress_time:
+                    axes[idx].plot(self.__standardize_timestamp(value["x_data"]),
+                                   value["y_data"],
+                                   color=used_color,
+                                   label=group_id
+                    )
+                else:
+                    axes[idx].plot(value["x_data"],
+                                   value["y_data"],
+                                   color=used_color,
+                                   label=group_id
+                    )
                 axes[idx].set_title(key)
                 axes[idx].set_xticks([])
                 axes[idx].set_yticks([])
                 idx += 1
         
+        plt.legend()
         plt.draw()
         plt.pause(0.1)
 
@@ -157,11 +168,11 @@ class Visualizer:
 
         # Create a datetime object
         dt = datetime(
-            date_components[0],  # year
-            date_components[1],  # month
-            date_components[2],  # day
-            int(time_components[0]),  # hour
-            int(time_components[1]),  # minute
+            date_components[0],
+            date_components[1],
+            date_components[2],
+            int(time_components[0]),
+            int(time_components[1]),
             seconds,
             microseconds
         )
