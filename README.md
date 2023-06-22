@@ -108,7 +108,7 @@ Here are explanations of each component:
 4. **Server-level Collector**: server-level collectors collect the matrices from the server. There are two types of server-level collectors:
     - without integration: the server-level collector collects the matrices from the server logs. Or relies on other 3rd utils like cAdvisor.
     - with integration: some server-level collectors require integration to the existing service. For instance, ElasticSearch and Prometheus require the service to be instrumented with their client library (e.g., HTTP endpoints).
-5. **Host-level Collector**: The host-level collector collects the matrices mostly the same as server-level collectors. However, the host-level collector collects the matrices from the host machine (e.g., using ePBF).  
+5. **Host-level Collector**: The host-level collector collects the matrices mostly the same as server-level collectors. However, the host-level collector collects the matrices from the host machine (e.g., using eBPF).  
 6. **Data Parser**, **Statistic Builder**, and **Comparison Report Builder**: These are the components that parse the data and build the report. The data parser parses the data into a unified format (e.g., JSON). The statistic builder builds the report based on the unified format. The comparison report builder compares the before/after report and generates a comparison report.
 
 ## Use case

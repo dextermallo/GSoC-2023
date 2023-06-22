@@ -133,10 +133,24 @@
 
 > Jun 22, 2023
 >
-> Thread: N/A
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1687444119818669
 
 1. Progress
 
-2. Others
+- [x] A PoC to test the framework. Especially interfaces, a data parser and a server-side collector to test the pipeline
+    - Implemented two data collectors (go-ftw and cAdvisor), Interfaces, Parsers, and an interactive visualizer (matplotlib)
+    - Repo: https://github.com/dextermallo/GSoC-2023/tree/feat/poc-data-collector
+- [x] Initialise testing libs for the performance framework (e.g., pytest): using poetry to manage dependencies & version
 
-3. Next Actions
+2. Next Actions
+
+- Optimize visualizer (e.g., adding x-label, y-label, data dots which show details when hovering on them, etc.)
+- Adding documentation, test cases, and test coverage
+- Implement new data listeners (eBPF)
+- Check on `go-ftw  -o` to see if possible to replace regex for parsing raw data from go-ftw
+
+# Meeting 7
+
+> Jun 22, 2023
+>
+> Thread: N/A
