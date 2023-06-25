@@ -40,7 +40,19 @@ class IDataCollector(ABC):
         except Exception as e:
             logger.error(e)
             return False
-        
+
+    def _save_file(self, dist_path: str, data: str):
+        logger.debug('start: _save_file()')
+
+        try:
+            os.makedirs(os.path.dirname(dist_path), exist_ok=True)
+            with open(dist_path, "w+") as file:
+                file.write(data)
+            file.close()
+        except Exception as e:
+            logger.error(e)
+            return False
+
     def _is_validate_data_format(self, data: any):
         logger.debug('start: is_validate_data_format()')
         

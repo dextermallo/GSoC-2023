@@ -3,3 +3,6 @@ private
 .env
 data
 .ftw.yaml
+
+__pycache__
+.coverage
