@@ -15,8 +15,8 @@ class FTWCollector(IDataCollector):
     raw_dist_path: str
     parsed_dist_path: str
     
-    def __init__(self, group_id: str, test_rule_id: str = None):
-        self.group_id = group_id if group_id is not None else self._generate_group_id()
+    def __init__(self, group_id: str = None, test_rule_id: str = None):
+        self.group_id = group_id if group_id is not None else self._generate_group_suffix()
         self.test_rule_id = test_rule_id
         
         if FTW_TEST_FILE_PATH is None:
@@ -64,7 +64,9 @@ class FTWCollector(IDataCollector):
         file.close()
 
 def main():
-    ftw_collector = FTWCollector(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None)
+    group_id = sys.argv[1] if len(sys.argv) > 1 else None
+    test_rule_id = sys.argv[2] if len(sys.argv) > 2 else None
+    ftw_collector = FTWCollector(group_id=group_id, test_rule_id=test_rule_id)
     ftw_collector.read_data()
     ftw_collector.parse_data()
     
