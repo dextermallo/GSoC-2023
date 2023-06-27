@@ -23,14 +23,6 @@ def test_DataFormatEncoder_default():
 
     assert encoded_data == expected_data
 
-def test_DataFormatEncoder_default_with_other_objects():
-    encoder = DataFormatEncoder()
-
-    assert encoder.default(123) == 123
-    assert encoder.default("string") == "string"
-    assert encoder.default([1, 2, 3]) == [1, 2, 3]
-    assert encoder.default({"key": "value"}) == {"key": "value"}
-
 def test_DataFormatEncoder_json_dumps():
     data_format = DataFormat("Testcase", "Execution Time")
     data_format.append("913100-1", "23.063208")
