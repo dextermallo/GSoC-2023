@@ -8,9 +8,21 @@ from src.utils.const import DATA_PATH, FTW_TEST_FILE_PATH
 
 
 class FTWCollector(IDataCollector):
+    """_summary_
+    FTWCollector is a class for collecting data from go-ftw, it utilizes the go-ftw
+    for calling the testcases and parsing the data.
+
+    Usage:
+        ```sh
+        # both group_id and test_rule_id are optional,
+        # if group_id is not specified, it will be generated automatically with a
+        # six-digit random number.
+        # if test_rule_id is not specified, it will run all testcases.
+        $ poetry run ftw-collector <group_id> <test_rule_id>
+        ```
+    """
     group_id: str
     test_rule_id: str
-
     test_file_path: str
     raw_dist_path: str
     parsed_dist_path: str
@@ -27,13 +39,15 @@ class FTWCollector(IDataCollector):
         self.parsed_dist_path = f"{DATA_PATH}/{self.group_id}"
     
     def read_data(self):
+        logger.debug("start: read_data()")
         specify_rule = f'-i {self.test_rule_id}' if self.test_rule_id is not None else ''
+        
+        # create the directory if not exist, and use go-ftw to run the test
         command = f'mkdir -p {self.parsed_dist_path} && \
                     go-ftw run -d {self.test_file_path} {specify_rule} > {self.raw_dist_path}'
 
         _ = subprocess.run(command, shell=True, check=False)
-
-            
+           
     def save_raw_data(self):
         pass
             

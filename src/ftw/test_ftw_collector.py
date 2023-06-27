@@ -1,9 +1,9 @@
 import pytest
 import json
 import os
+import shutil
 from src.ftw.collector import FTWCollector
 from src.utils.const import DATA_PATH
-import shutil
 
 
 @pytest.fixture
@@ -11,8 +11,7 @@ def ftw_collector(scope='session', autouse=True):
     group_id = "ftw_test_group_id"
     test_rule_id = "920170"
     yield FTWCollector(group_id, test_rule_id)
-    
-    
+
 def test_collector_gen_group_id():
     new_collector = FTWCollector()
     # new_collector.group_id should be a six-digit string

@@ -9,14 +9,24 @@ from src.interface.DataFormat import DataFormat, DataFormatEncoder
 from src.utils.logger import logger
 from src.utils.const import DATA_PATH, WAF_CONTAINER_NAME, CADVISOR_ENDPOINT
 
+
 class CAdvisorCollector(IDataCollector):
+    """_summary_
+    CAdvisorCollector is a class for collecting data from cAdvisor API.
+
+    Usage:
+    ```sh
+    # run the following command, and the data will be stored in $DATA_PATH/<group_id>,
+    # once the data is collected, terminate the process with Ctrl+C, and the data will be parsed.
+    $ poetry run cadvisor-collector <group_id>
+    ```
+    """    
     waf_container_name: str
     src_path: str
     raw_dist_path: str
     parsed_dist_path: str
     group_id: str
     data_list = []
-    
 
     def __init__(self, group_id: str):
         self.waf_container_name = WAF_CONTAINER_NAME
@@ -68,6 +78,13 @@ class CAdvisorCollector(IDataCollector):
         super()._save_json_file(self.raw_dist_path, self.data_list)
     
     def __get_waf_container_id(self) -> str:
+        """_summary_
+        __get_waf_container_id() gets the id of container which name is $WAF_CONTAINER_NAME,
+        the id is used for cAdvisor API.
+
+        Returns:
+            str: waf container id
+        """
         logger.debug("start: __get_waf_container_id()")
         client = docker.from_env()
         container = client.containers.get(self.waf_container_name)
@@ -75,7 +92,6 @@ class CAdvisorCollector(IDataCollector):
     
     def parse_data(self):        
         logger.debug("start: parse_data()")
-
         self.save_raw_data()
 
         cpu_total_usage = DataFormat("timestamp", "cpu_total_usage")
@@ -109,6 +125,5 @@ class CAdvisorCollector(IDataCollector):
 
 def main():
     cAdvisor_collector = CAdvisorCollector(sys.argv[1])
-
     atexit.register(cAdvisor_collector.parse_data)
     cAdvisor_collector.read_data()
