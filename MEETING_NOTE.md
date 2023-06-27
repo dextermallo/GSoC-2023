@@ -151,6 +151,16 @@
 
 # Meeting 7
 
-> Jun 22, 2023
+> Jun 29, 2023
 >
 > Thread: N/A
+
+1. Progress
+
+- [x] Optimize visualizer (e.g., adding x-label, y-label, data dots which show details when hovering on them, etc.): continue
+- [x] Adding documentation, test cases, and test coverage: current coverage is 91%
+    ![meeting-7-test-coverage](./assets/meeting-7-test-coverage.png)
+- [ ] Implement new data listeners (eBPF)
+- [x] Check on `go-ftw  -o` to see if possible to replace regex for parsing raw data from go-ftw: the data only contains runtime (no RTT), but it is superior to parse the data.
+
+2. Next Actions

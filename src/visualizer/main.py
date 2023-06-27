@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import json
 import argparse
+import os
 from datetime import datetime
 from typing import List
 from collections import UserDict
-import os
 from src.interface.DataFormat import DataFormat
 from src.utils.logger import logger
 from src.utils.const import DATA_PATH
@@ -141,8 +141,12 @@ class Visualizer:
                 axes[idx].set_title(key)
                 axes[idx].set_xticks([])
                 axes[idx].set_yticks([])
+                axes[idx].grid(True)
+                axes[idx].xaxis.set_major_locator(plt.MaxNLocator(3))
+                axes[idx].yaxis.set_major_locator(plt.MaxNLocator(3))
                 idx += 1
         
+        plt.ylim(top=plt.yticks()[0][-1])
         plt.legend()
         plt.draw()
         plt.pause(0.1)
@@ -180,4 +184,5 @@ class Visualizer:
         return dt.timestamp()
 
 def main():
+    plt.set_loglevel('WARNING')
     Visualizer().exec()
