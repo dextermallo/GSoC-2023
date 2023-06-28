@@ -116,10 +116,11 @@ class Visualizer:
 
         plt.close('all')
 
-        self.fig, axes = plt.subplots(self.data_length)
-        plt.subplots_adjust(hspace=None)
-        self.fig.tight_layout()
-        
+        self.fig, axes = plt.subplots(self.data_length, sharex=True)
+        plt.subplots_adjust(hspace=0.5, wspace=0.5)
+        self.fig.set_figheight(6)
+        self.fig.set_figwidth(10)
+
         colors = ["red", "blue", "green"]
         
         for group_id in self.data_groups.keys():
@@ -130,13 +131,17 @@ class Visualizer:
                     axes[idx].plot(self.__standardize_timestamp(value["x_data"]),
                                    value["y_data"],
                                    color=used_color,
-                                   label=group_id
+                                   label=group_id,
+                                   marker='o',
+                                   markersize=2.5
                     )
                 else:
                     axes[idx].plot(value["x_data"],
                                    value["y_data"],
                                    color=used_color,
-                                   label=group_id
+                                   label=group_id,
+                                   marker='o',
+                                   markersize=2.5
                     )
                 axes[idx].set_title(key)
                 axes[idx].set_xticks([])
@@ -149,6 +154,7 @@ class Visualizer:
         plt.ylim(top=plt.yticks()[0][-1])
         plt.legend()
         plt.draw()
+        plt.tight_layout(pad=1.5)
         plt.pause(0.1)
 
     def __standardize_timestamp(self, timestamp_list: List[str]) -> List[int]:
