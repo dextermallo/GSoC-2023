@@ -1,11 +1,14 @@
+import yaml
 import os
 import json
 import secrets
 import string
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, List
 from src.utils.logger import logger
+from src.utils.const import FTW_TEST_FILE_PATH
 from src.interface.DataFormat import DataFormat
+from src.interface.FTWTestSchema import FTWTestSchema, FTWTestInput
 
 
 class IDataCollector(ABC):
@@ -101,6 +104,14 @@ class IDataCollector(ABC):
             logger.error(e)
             return False
 
+    def _create_directory(self, dist_path: str):
+        """_summary_
+        @TODO: documentation
+        Args:
+            dist_path (str): _description_
+        """
+        os.makedirs(os.path.dirname(dist_path), exist_ok=True)
+
     def _is_validate_data_format(self, data: any) -> bool:
         """_summary_
         _is_validate_data_format is a method for validating data format matches class DataFormat.
@@ -136,3 +147,61 @@ class IDataCollector(ABC):
         """
         logger.debug('start: _generate_group_suffix()')
         return ''.join(secrets.choice(string.digits) for _ in range(6))
+    
+    def _retrieve_rule_test_file_by_id(self, rule_id: str) -> List[FTWTestSchema]:
+        """_summary_
+        @TODO: documentation
+        Args:
+            rule_id (str): _description_
+
+        Raises:
+            Exception: _description_
+
+        Returns:
+            List[FTWTestSchema]: _description_
+        """
+        logger.debug('start: _retrieve_rule_test_file_by_id()')
+
+        if FTW_TEST_FILE_PATH is None:
+            raise Exception("FTW_TEST_FILE_PATH not set")
+        
+        matched = []
+        
+        # find filename which match the rule id
+        for root, _, files in os.walk(FTW_TEST_FILE_PATH):
+            for file_name in files:
+                if rule_id in file_name:
+                    matched.append(os.path.join(root, file_name))
+
+        data: List[FTWTestSchema] = []
+
+        for i in matched:
+            data += self.parse_go_ftw_yaml(i)
+
+        return data
+    
+    def parse_go_ftw_yaml(self, file_path: str) -> List[FTWTestSchema]:
+        """_summary_
+        @TODO: documentation
+        Args:
+            file_path (str): _description_
+
+        Returns:
+            List[FTWTestSchema]: _description_
+        """
+        with open(file_path, 'r') as file:
+            data = yaml.safe_load(file)
+
+        res = []
+
+        for data in data["tests"]:
+            test_title = data['test_title']
+            inputs: List[FTWTestInput] = []
+            
+            for stage in data['stages']:
+                inputs.append(FTWTestInput(stage["stage"]["input"]))
+
+            test = FTWTestSchema(test_title, inputs)
+            res.append(test)
+
+        return res

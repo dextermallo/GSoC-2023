@@ -6,6 +6,7 @@ load_dotenv()
 
 # general
 DATA_PATH = os.getenv("DATA_PATH")
+WAF_ENDPOINT = os.getenv("WAF_ENDPOINT")
 
 # cAdvisor
 WAF_CONTAINER_NAME = os.getenv("WAF_CONTAINER_NAME")

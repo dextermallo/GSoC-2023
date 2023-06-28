@@ -14,6 +14,9 @@ requests = "^2.31.0"
 matplotlib = "^3.7.1"
 pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
+gevent = "^22.10.2"
+locust = "^2.15.1"
+pyyaml = "^6.0"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -28,3 +31,4 @@ build-backend = "poetry.core.masonry.api"
 collect-cAdvisor = 'src.cAdvisor.collector:main'
 visualize = 'src.visualizer.main:main'
 collect-ftw = 'src.ftw.collector:main'
+collect-locust = 'src.locust.collector:main'
