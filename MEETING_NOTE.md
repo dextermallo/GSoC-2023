@@ -153,7 +153,7 @@
 
 > Jun 29, 2023
 >
-> Thread: N/A
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1688074621676979
 
 1. Progress
 
@@ -162,5 +162,25 @@
     ![meeting-7-test-coverage](./assets/meeting-7-test-coverage.png)
 - [ ] Implement new data listeners (eBPF)
 - [x] Check on `go-ftw  -o` to see if possible to replace regex for parsing raw data from go-ftw: the data only contains runtime (no RTT), but it is superior to parse the data.
+
+2. Next Actions
+
+- Usage documentation
+- Check on GitHub summary/pipeline integration
+- Other util integration (eBPF)
+- Further research on data visualization
+
+# Meeting 8
+
+> Jul 13, 2023
+>
+> Thread: N/A
+
+1. Progress
+
+- [] Usage documentation
+- [] Check on GitHub summary/pipeline integration
+- [] Other utils integration (eBPF)
+- [] Further research on data visualization
 
 2. Next Actions

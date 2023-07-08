@@ -183,6 +183,6 @@ The sources of matrices can be classified into three categories:
 
 # Implementation
 
-## PRs
+Please refer to the [implementation](./src/README.md) for more details.
 
-## References
+# References
