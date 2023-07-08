@@ -1,2 +1,9 @@
 private
 .DS_Store
+.env
+data
+.ftw.yaml
+
+__pycache__
+.coverage
+src/locust/exec.py
