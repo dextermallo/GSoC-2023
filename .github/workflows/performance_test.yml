@@ -48,7 +48,7 @@ jobs:
           fi
 
           # output changes
-          $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf') > rules-changed.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
 
           # copy rule files
           mkdir rules-before rules-after
