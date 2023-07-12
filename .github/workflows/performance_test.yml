@@ -59,7 +59,7 @@ jobs:
           echo "Tracker 2"
             git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
             git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
-          done < $(grep -E 'rules/.*\.conf' rules-changed.txt)
+          done < rules-changed.txt
 
           # copy corresponding test files
           mkdir rules-changed-test
@@ -70,7 +70,7 @@ jobs:
             req="${filename#rules/}"
             req="${result%.conf}"
             cp -R tests/regression/tests/$req rules-changed-test/$req
-          done < $(grep -E 'rules/.*\.conf' rules-changed.txt)
+          done < rules-changed.txt
 
       # performance tests
       - name: "Run performance test for changed rules"
