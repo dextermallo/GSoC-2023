@@ -55,6 +55,7 @@ jobs:
 
           mkdir rules-before rules-after
           while read -r filename; do
+          echo $filename
           echo "Tracker 2"
             git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
             git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
@@ -65,6 +66,7 @@ jobs:
           echo "Tracker 3"
 
           while read -r filename; do
+            echo $filename
             req="${filename#rules/}"
             req="${result%.conf}"
             cp -R tests/regression/tests/$req rules-changed-test/$req
