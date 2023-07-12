@@ -1,5 +1,5 @@
 ---
-name: Regression Tests
+name: Performance Tests
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
       - '.github/**'
 
 jobs:
-  regression:
+  performance:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,19 +31,6 @@ jobs:
           GO_FTW_VERSION: '0.4.8'
         run: |
           gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
-
-      # regression tests
-      - name: "Run tests for ${{ matrix.modsec_version }}"
-        run: |
-          mkdir -p tests/logs/${{ matrix.modsec_version }}/{nginx,apache2}
-          docker-compose -f ./tests/docker-compose.yml up -d "${{ matrix.modsec_version }}"
-          docker-compose -f ./tests/docker-compose.yml logs
-          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
-          ./ftw check -d tests/regression/tests
-          ./ftw run -d tests/regression/tests --show-failures-only
-        env:
-          FTW_LOGFILE: './tests/logs/modsec2-apache/error.log'
-
 
       # check changed files, clone the old rules in folder /old_rules
       # the old rules are used to compare the new rules with the old ones
@@ -78,13 +65,7 @@ jobs:
       # performance tests
       - name: "Run performance test for changed rules"
         run: |
-
-          # restart, apply customized .conf
-          docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
-          docker-compose -f ./tests/docker-compose.yml down
-
           modsec_version=${{ matrix.modsec_version }}
-          
           origin_yaml_path=./tests/docker-compose.yml
           before_yaml_path=before-docker-compose.yml
           after_yaml_path=after-docker-compose.yml
