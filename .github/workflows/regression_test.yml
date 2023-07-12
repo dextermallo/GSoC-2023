@@ -41,15 +41,21 @@ jobs:
           echo ${{ github.event.before }}
           echo ${{ github.event.after }}
           
+          echo "Tracer 1"
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
           
           # check if any rule is changed
+          echo "Tracer 2"
           if [ -s rules-changed.txt ]; then
+
+            echo "Tracer 3"
             while read -r filename; do
               git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
+              echo "Tracer 4"
               git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
             done < rules-changed.txt
 
+            echo "Tracer 5"
             # copy corresponding test files
             mkdir rules-changed-test
             while read -r filename; do
