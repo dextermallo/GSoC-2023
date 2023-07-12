@@ -42,15 +42,21 @@ jobs:
           prev_hash=$(git rev-list --parents -n 1 $cur_hash)
           prev_hash=$(echo $prev_hash | sed "s/$cur_hash //g")
 
+          echo $cur_hash
+          echo $prev_hash
+          
           git diff --name-only $prev_hash $cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
           
+          echo "stk 1"
+
           # check if any rule is changed
           if [ -s rules-changed.txt ]; then
+            echo "stk 2"
             while read -r filename; do
               git show "$prev_hash:$filename" > "rules-before/${filename#rules/}"
               git show "$cur_hash:$filename" > "rules-after/${filename#rules/}"
             done < rules-changed.txt
-
+            echo "stk 3"
             mkdir rules-changed-test
             while read -r filename; do
               req="${filename#rules/}"
