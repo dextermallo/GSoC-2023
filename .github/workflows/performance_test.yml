@@ -82,6 +82,10 @@ jobs:
           # update yaml to test on before
           sed -i -e "s/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- ..\/rules-before:\/opt\/owasp-crs\/rules:ro/g" $origin_yaml_path
 
+          echo $origin_yaml_path
+          ls
+          pwd
+
           docker-compose -f $origin_yaml_path up -d "${{ matrix.modsec_version }}"
           docker-compose -f $origin_yaml_path logs
           [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
