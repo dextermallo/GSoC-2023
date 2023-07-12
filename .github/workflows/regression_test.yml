@@ -37,10 +37,14 @@ jobs:
           mkdir rules-before rules-after
 
           cur_hash=$(git rev-parse --short "$GITHUB_SHA")
+          second_hash=github.event.pull_request.head.sha
 
-          git diff --name-only $cur_hash^ cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
+          echo $cur_hash
+          echo $second_hash
 
-          if [ -f rules-changed.txt ]; then
+          git diff --name-only "$cur_hash"^ cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
+
+          if [ -s rules-changed.txt ]; then
             while read -r filename; do
               git show "$cur_hash^:$filename" > "rules-before/${filename#rules/}"
               git show "$cur_hash:$filename" > "rules-after/${filename#rules/}"
@@ -52,7 +56,7 @@ jobs:
           # clone test cases
           mkdir rules-changed-test
           
-          if [ -f rules-changed.txt ]; then
+          if [ -s rules-changed.txt ]; then
             while read -r filename; do
               req="${filename#rules/}"
               req="${result%.conf}"
