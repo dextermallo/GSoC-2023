@@ -32,46 +32,6 @@ jobs:
         run: |
           gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
 
-      # check changed files, clone the old rules in folder /old_rules
-      # the old rules are used to compare the new rules with the old ones
-      - name: "Clone changed rules and corresponding test cases"
-        id: "p_test"
-        run: |    
-          mkdir rules-before rules-after
-
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} > rules-changed.txt
-
-          echo ::set-output name=grep_stats::$(grep -E 'rules/.*\.conf' rules-changed.txt | wc -l)
-          if [ $(grep -E 'rules/.*\.conf' rules-changed.txt | wc -l) = 0 ]; then
-            exit_with_success
-          fi
-          
-
-          # check if any rule is changed
-          echo "Tracer 2"
-          if [ -s rules-changed.txt ]; then
-
-            echo "Tracer 3"
-            while read -r filename; do
-              git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
-              echo "Tracer 4"
-              git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
-            done < rules-changed.txt
-
-            echo "Tracer 5"
-            # copy corresponding test files
-            mkdir rules-changed-test
-            while read -r filename; do
-              req="${filename#rules/}"
-              req="${result%.conf}"
-              cp -R tests/regression/tests/$req rules-changed-test/$req
-            done < rules-changed.txt
-
-          else
-            echo "no changes on rules"
-            exit_with_success
-          fi
-
       # regression tests
       - name: "Run tests for ${{ matrix.modsec_version }}"
         run: |
@@ -84,14 +44,40 @@ jobs:
         env:
           FTW_LOGFILE: './tests/logs/modsec2-apache/error.log'
 
-      # performance tests
-      - name: "Run performance test for changed rules"
+
+      # check changed files, clone the old rules in folder /old_rules
+      # the old rules are used to compare the new rules with the old ones
+      - name: "Clone changed rules and corresponding test cases"
+        id: "performance_test_init"
         run: |    
 
-          if [ ! -s rules-changed.txt ]; then
-            echo "skip performance test"
-            exit_with_success
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} > rules-changed.txt
+
+          # no rule changes
+          if [ $(grep -E 'rules/.*\.conf' rules-changed.txt | wc -l) != 0 ]; then
+            exit 1
           fi
+          
+          # copy rule files
+          mkdir rules-before rules-after
+
+          while read -r filename; do
+            git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
+            git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
+          done < $(grep -E 'rules/.*\.conf' rules-changed.txt)
+
+          # copy corresponding test files
+          mkdir rules-changed-test
+
+          while read -r filename; do
+            req="${filename#rules/}"
+            req="${result%.conf}"
+            cp -R tests/regression/tests/$req rules-changed-test/$req
+          done < $(grep -E 'rules/.*\.conf' rules-changed.txt)
+
+      # performance tests
+      - name: "Run performance test for changed rules"
+        run: |
 
           # restart, apply customized .conf
           docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
@@ -123,7 +109,7 @@ jobs:
 
           cat raw.go_ftw.after.txt
           python3 ./test.py          
-        if: steps.p_test.outputs.grep_stats != '0'
+        if: steps.performance_test_init.conclusion == 'success'
       # @TODO: create report
 
       - name: "Change permissions if failed"
