@@ -40,7 +40,7 @@ jobs:
         run: |    
 
           base_dir="${{ matrix.workspace }}"
-          echo $base_dir
+          mkdir -p $base_dir
 
           # inspection
           num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
