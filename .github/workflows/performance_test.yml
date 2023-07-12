@@ -44,7 +44,8 @@ jobs:
 
           # no rule changes
           if [ $result = 0 ]; then
-            exit 1
+            echo "num_changed_rules=0" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           
           # copy rule files
@@ -93,7 +94,7 @@ jobs:
 
           cat raw.go_ftw.after.txt
           python3 ./test.py          
-        if: steps.performance_test_init.conclusion == 'success'
+        if: steps.performance_test_init.outputs.num_changed_rules != '0'
       # @TODO: create report
 
       - name: "Change permissions if failed"
