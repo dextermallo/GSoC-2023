@@ -70,11 +70,7 @@ jobs:
       - name: "Run performance test for changed rules"
         run: |
 
-
-          # docker-compose -f ./tests/docker-compose.yml up -d "${{ matrix.modsec_version }}"
-          # docker-compose -f ./tests/docker-compose.yml logs
-          # [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
-          
+          mkdir output
 
           mkdir -p tests/logs/${{ matrix.modsec_version }}
           origin_yaml_path=./tests/docker-compose.yml
@@ -82,30 +78,13 @@ jobs:
           # update yaml to test on before
           sed -i -e "s/- ..\/rules/- ..\/rules-before/g" $origin_yaml_path
 
-          cat $origin_yaml_path
-
           docker-compose -f $origin_yaml_path up -d "${{ matrix.modsec_version }}"
           docker-compose -f $origin_yaml_path logs
           [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
 
-          ./ftw check -d tests/regression/tests
-          ./ftw run -d tests/regression/tests --show-failures-only          
+          ./ftw check -d rules-changed-test
+          ./ftw run -d rules-changed-test --show-failures-only > output/raw.before.txt
 
-          # test before changes
-          # docker-compose -f $before_yaml_path up -d "${{ matrix.modsec_version }}"
-          # docker-compose -f $before_yaml_path logs
-          # echo "tracker 0"
-
-          # cat $before_yaml_path
-          # [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
-
-          # echo "tracker 1"
-          # ./ftw check -d rules-changed-test
-          
-          # echo "tracker 2"
-          # ./ftw run -d rules-changed-test > raw.go_ftw.before.txt
-
-          # echo "tracker 3"
           # # restart, test with after changes
           # docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
           # docker-compose -f ./tests/docker-compose.yml down
