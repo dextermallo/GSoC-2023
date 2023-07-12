@@ -80,7 +80,7 @@ jobs:
           origin_yaml_path=./tests/docker-compose.yml
 
           # update yaml to test on before
-          sed -i -e "s/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- ..\/rules-before:\/opt\/owasp-crs\/rules:ro/g" $origin_yaml_path
+          sed -i -e "s/- ..\/rules/- ..\/rules-before/g" $origin_yaml_path
 
           cat $origin_yaml_path
 
