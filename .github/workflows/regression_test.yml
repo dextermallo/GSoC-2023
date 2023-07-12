@@ -38,11 +38,12 @@ jobs:
         run: |    
           mkdir rules-before rules-after
 
-          touch rules-changed.txt
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} > rules-changed.txt
-
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} > rules-changed-raw.txt
+          cat rules-changed-raw.txt
+          $(cat rules-changed-raw.txt | grep -E 'rules/.*\.conf') > rules-changed.txt
           cat rules-changed.txt
-          
+
+
           # check if any rule is changed
           echo "Tracer 2"
           if [ -s rules-changed.txt ]; then
