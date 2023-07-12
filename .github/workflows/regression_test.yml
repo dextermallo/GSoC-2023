@@ -19,6 +19,7 @@ jobs:
     strategy:
       matrix:
         modsec_version: [modsec2-apache]
+        performance_test_required: [true]
     steps:
       - name: "Checkout repo"
         uses: actions/checkout@v3
@@ -45,6 +46,9 @@ jobs:
               git show "$cur_hash^:$filename" > "rules-before/${filename#rules/}"
               git show "$cur_hash:$filename" > "rules-after/${filename#rules/}"
             done < rules-changed.txt
+          else
+            ${{ performance_test_required }}=false
+            return
           fi
 
           # clone test cases
@@ -73,6 +77,12 @@ jobs:
       # performance tests
       - name: "Run performance test for changed rules"
         run: |    
+
+          if [ ${{ performance_test_required }}= false ]; then
+            echo "no need"
+            return
+          fi
+
           # restart, apply customized .conf
           docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
           docker-compose -f ./tests/docker-compose.yml down
