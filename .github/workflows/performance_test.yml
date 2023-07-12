@@ -110,7 +110,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: output
-          path: /output
+          path: output
 
       - name: Clean docker-compose
         run: |
