@@ -36,12 +36,14 @@ jobs:
         run: |
           mkdir rules-before rules-after
 
-          git diff --name-only HEAD^ HEAD | grep -E 'rules/.*\.conf' > rules-changed.txt
+          cur_hash=$(git rev-parse --short "$GITHUB_SHA")
+
+          git diff --name-only $cur_hash^ cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
 
           if [ -f rules-changed.txt ]; then
             while read -r filename; do
-              git show "HEAD^:$filename" > "rules-before/${filename#rules/}"
-              git show "HEAD:$filename" > "rules-after/${filename#rules/}"
+              git show "$cur_hash^:$filename" > "rules-before/${filename#rules/}"
+              git show "$cur_hash:$filename" > "rules-after/${filename#rules/}"
             done < rules-changed.txt
           fi
 
