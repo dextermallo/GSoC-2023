@@ -30,6 +30,12 @@ jobs:
         run: |
           gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
 
+      - name: "Get changed rules"
+        run: |
+          echo "Get changed rules"
+          git diff --name-only HEAD^ HEAD | grep -E 'rules/.*\.conf' | sed 's/^/rules\//' > changed_rules.txt
+          echo changed_rules.txt
+
       - name: "Run tests for ${{ matrix.modsec_version }}"
         run: |
           mkdir -p tests/logs/${{ matrix.modsec_version }}/{nginx,apache2}
