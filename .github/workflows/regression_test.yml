@@ -19,7 +19,6 @@ jobs:
     strategy:
       matrix:
         modsec_version: [modsec2-apache]
-        performance_test_required: [true]
     steps:
       - name: "Checkout repo"
         uses: actions/checkout@v3
@@ -34,7 +33,7 @@ jobs:
       # check changed files, clone the old rules in folder /old_rules
       # the old rules are used to compare the new rules with the old ones
       - name: "Clone changed rules and corresponding test cases"
-        run: |
+        run: |          
           mkdir rules-before rules-after
 
           cur_hash=$(git rev-parse --short "$GITHUB_SHA")
@@ -47,7 +46,6 @@ jobs:
               git show "$cur_hash:$filename" > "rules-after/${filename#rules/}"
             done < rules-changed.txt
           else
-            ${{ performance_test_required }}=false
             return
           fi
 
@@ -78,8 +76,8 @@ jobs:
       - name: "Run performance test for changed rules"
         run: |    
 
-          if [ ${{ performance_test_required }}= false ]; then
-            echo "no need"
+          if [ ! -s rules-changed.txt ]; then
+            echo "skip performance test"
             return
           fi
 
