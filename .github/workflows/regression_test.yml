@@ -42,7 +42,7 @@ jobs:
           echo $cur_hash
           echo $second_hash
 
-          git diff --name-only "$cur_hash"^ cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
+          git diff --name-only $cur_hash^ $cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
 
           if [ -s rules-changed.txt ]; then
             while read -r filename; do
