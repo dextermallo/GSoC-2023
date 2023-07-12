@@ -30,12 +30,33 @@ jobs:
         run: |
           gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
 
-      - name: "Get changed rules"
+      # check changed files, clone the old rules in folder /old_rules
+      # the old rules are used to compare the new rules with the old ones
+      - name: "Clone changed rules and corresponding test cases"
         run: |
-          echo "Get changed rules"
-          git diff --name-only HEAD^ HEAD | grep -E 'rules/.*\.conf' | sed 's/^/rules\//' > changed_rules.txt
-          echo changed_rules.txt
+          mkdir rules-before rules-after
 
+          git diff --name-only HEAD^ HEAD | grep -E 'rules/.*\.conf' > rules-changed.txt
+
+          if [ -f rules-changed.txt ]; then
+            while read -r filename; do
+              git show "HEAD^:$filename" > "rules-before/${filename#rules/}"
+              git show "HEAD:$filename" > "rules-after/${filename#rules/}"
+            done < rules-changed.txt
+          fi
+
+          # clone test cases
+          mkdir rules-changed-test
+          
+          if [ -f rules-changed.txt ]; then
+            while read -r filename; do
+              req="${filename#rules/}"
+              req="${result%.conf}"
+              cp -R tests/regression/tests/$req rules-changed-test/$req
+            done < rules-changed.txt
+          fi
+
+      # regression tests
       - name: "Run tests for ${{ matrix.modsec_version }}"
         run: |
           mkdir -p tests/logs/${{ matrix.modsec_version }}/{nginx,apache2}
@@ -46,6 +67,42 @@ jobs:
           ./ftw run -d tests/regression/tests --show-failures-only
         env:
           FTW_LOGFILE: './tests/logs/modsec2-apache/error.log'
+
+      # performance tests
+      - name: "Run performance test for changed rules"
+        run: |    
+          # restart, apply customized .conf
+          docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
+          docker-compose -f ./tests/docker-compose.yml down
+
+          modsec_version=${{ matrix.modsec_version }}
+          
+          origin_yaml_path=./tests/docker-compose.yml
+          before_yaml_path=before-docker-compose.yml
+          after_yaml_path=after-docker-compose.yml
+
+          # create and update yaml
+          sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $before_yaml_path
+          sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-after:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $after_yaml_path
+
+          # test before changes
+          docker-compose -f $before_yaml_path up -d "${{ matrix.modsec_version }}"
+          docker-compose -f $before_yaml_path logs
+          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
+          ./ftw run -d rules-changed-test > raw.go_ftw.before.txt
+
+          # restart, test with after changes
+          docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
+          docker-compose -f ./tests/docker-compose.yml down
+          docker-compose -f $after_yaml_path up -d "${{ matrix.modsec_version }}"
+          docker-compose -f $after_yaml_path logs
+          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
+          ./ftw run -d rules-changed-test > raw.go_ftw.after.txt
+
+          cat raw.go_ftw.after.txt
+          python3 ./test.py          
+
+      # @TODO: create report
 
       - name: "Change permissions if failed"
         if: failure()
