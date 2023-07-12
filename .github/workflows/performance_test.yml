@@ -68,31 +68,27 @@ jobs:
       - name: "Run performance test for changed rules"
         run: |
 
-          mkdir -p tests/logs/${{ matrix.modsec_version }}/{nginx,apache2}
-          docker-compose -f ./tests/docker-compose.yml up -d "${{ matrix.modsec_version }}"
-          docker-compose -f ./tests/docker-compose.yml logs
-          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
-          ./ftw check -d tests/regression/tests
-          ./ftw run -d tests/regression/tests --show-failures-only
-
-          # modsec_version=${{ matrix.modsec_version }}
-          # origin_yaml_path=./tests/docker-compose.yml
-          # before_yaml_path=before-docker-compose.yml
-          # after_yaml_path=after-docker-compose.yml
-
-          # mkdir -p tests/logs/${{ matrix.modsec_version }}/{nginx,apache2}
-          # touch tests/logs/${{ matrix.modsec_version }}/modsec_audit.log
-          # sudo chmod 644 tests/logs/${{ matrix.modsec_version }}/modsec_audit.log
-
-          # # create and update yaml
-          # sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $before_yaml_path
-          # sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-after:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $after_yaml_path
-
-          # # test before changes
-          # docker-compose -f $before_yaml_path up -d "${{ matrix.modsec_version }}"
-          # docker-compose -f $before_yaml_path logs
+          mkdir -p tests/logs/${{ matrix.modsec_version }}
+          # docker-compose -f ./tests/docker-compose.yml up -d "${{ matrix.modsec_version }}"
+          # docker-compose -f ./tests/docker-compose.yml logs
           # [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
-          # ./ftw run -d rules-changed-test > raw.go_ftw.before.txt
+          # ./ftw check -d tests/regression/tests
+          # ./ftw run -d tests/regression/tests --show-failures-only
+
+          modsec_version=${{ matrix.modsec_version }}
+          origin_yaml_path=./tests/docker-compose.yml
+          before_yaml_path=before-docker-compose.yml
+          after_yaml_path=after-docker-compose.yml
+
+          # create and update yaml
+          sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $before_yaml_path
+          sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-after:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $after_yaml_path
+
+          # test before changes
+          docker-compose -f $before_yaml_path up -d "${{ matrix.modsec_version }}"
+          docker-compose -f $before_yaml_path logs
+          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
+          ./ftw run -d rules-changed-test > raw.go_ftw.before.txt
 
           # # restart, test with after changes
           # docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
