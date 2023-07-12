@@ -34,34 +34,33 @@ jobs:
       # the old rules are used to compare the new rules with the old ones
       - name: "Clone changed rules and corresponding test cases"
         run: |          
+
           mkdir rules-before rules-after
 
           cur_hash=$(git rev-parse --short "$GITHUB_SHA")
+          cur_hash="2aa7560cd237e6f7a6b56468090f6afc44f7ae0d"
           prev_hash=$(git rev-list --parents -n 1 $cur_hash)
-
-          echo $cur_hash
-          echo $prev_hash
+          prev_hash=$(echo $prev_hash | sed "s/$cur_hash //g")
 
           git diff --name-only $prev_hash $cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
-
+          
+          # check if any rule is changed
           if [ -s rules-changed.txt ]; then
             while read -r filename; do
               git show "$prev_hash:$filename" > "rules-before/${filename#rules/}"
               git show "$cur_hash:$filename" > "rules-after/${filename#rules/}"
             done < rules-changed.txt
-          else
-            return
-          fi
 
-          # clone test cases
-          mkdir rules-changed-test
-          
-          if [ -s rules-changed.txt ]; then
+            mkdir rules-changed-test
             while read -r filename; do
               req="${filename#rules/}"
               req="${result%.conf}"
               cp -R tests/regression/tests/$req rules-changed-test/$req
             done < rules-changed.txt
+
+          else
+            echo "no changes on rules"
+            return
           fi
 
       # regression tests
