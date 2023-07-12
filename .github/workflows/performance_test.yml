@@ -68,7 +68,7 @@ jobs:
       - name: "Run performance test for changed rules"
         run: |
 
-          mkdir -p tests/logs/${{ matrix.modsec_version }}
+          mkdir -p ./tests/logs/${{ matrix.modsec_version }}
           # docker-compose -f ./tests/docker-compose.yml up -d "${{ matrix.modsec_version }}"
           # docker-compose -f ./tests/docker-compose.yml logs
           # [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
@@ -87,6 +87,8 @@ jobs:
           docker-compose -f $before_yaml_path up -d "${{ matrix.modsec_version }}"
           docker-compose -f $before_yaml_path logs
           echo "tracker 0"
+
+          cat $before_yaml_path
           [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
 
           echo "tracker 1"
