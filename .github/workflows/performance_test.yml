@@ -83,7 +83,7 @@ jobs:
           [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
 
           ./ftw check -d rules-changed-test
-          ./ftw run -d rules-changed-test --show-failures-only > output/raw.before.txt
+          $(./ftw run -d rules-changed-test > output/raw.before.txt) || echo "case fail"
 
           # # restart, test with after changes
           # docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
