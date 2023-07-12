@@ -19,6 +19,7 @@ jobs:
     strategy:
       matrix:
         modsec_version: [modsec2-apache]
+        workspace: [/output]
     steps:
       - name: "Checkout repo"
         uses: actions/checkout@v3
@@ -37,39 +38,42 @@ jobs:
       - name: "Clone changed rules and corresponding test cases"
         id: "performance_test_init"
         run: |    
-          
+
+          base_dir=${{ matrix.workspace }}
+
+          # inspection
           num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
           echo "num_changed_rules=$num_changed_rules" >> "$GITHUB_OUTPUT"
 
-          # no rule changes
+          # if no rule is changed, return
           if [ $num_changed_rules = 0 ]; then
             exit 0
           fi
 
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
+          # output changes
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > $base_dir/rules-changed.txt
 
           # copy rule files
-          mkdir /rules-before /rules-after
+          mkdir $base_dir/rules-before $base_dir/rules-after
           while read -r filename; do
-            git show "${{ github.event.before }}:$filename" > "/rules-before/${filename#rules/}"
-            git show "${{ github.event.after }}:$filename" > "/rules-after/${filename#rules/}"
-          done < rules-changed.txt
+            git show "${{ github.event.before }}:$filename" > "$base_dir/rules-before/${filename#rules/}"
+            git show "${{ github.event.after }}:$filename" > "$base_dir/rules-after/${filename#rules/}"
+          done < $base_dir/rules-changed.txt
 
           # copy corresponding test files
-          mkdir rules-changed-test
+          mkdir $base_dir/rules-changed-test
 
           while read -r filename; do
             req="${filename#rules/}"
             req="${result%.conf}"
-            cp -R tests/regression/tests/$req rules-changed-test/$req
-          done < rules-changed.txt
+            cp -R tests/regression/tests/$req $base_dir/rules-changed-test/$req
+          done < $base_dir/rules-changed.txt
 
       # performance tests
       - name: "Run performance test for changed rules"
         run: |
 
-          ls /rules-before
-
+          base_dir=${{ matrix.workspace }}
           # mkdir -p tests/logs/${{ matrix.modsec_version }}
           # docker-compose -f ./tests/docker-compose.yml up -d "${{ matrix.modsec_version }}"
           # docker-compose -f ./tests/docker-compose.yml logs
@@ -80,7 +84,7 @@ jobs:
           origin_yaml_path=./tests/docker-compose.yml
 
           # update yaml to test on before
-          sed -i -e 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- \/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path
+          sed -i -e "s/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- \$base_dir/rules-before:\/opt\/owasp-crs\/rules:ro/g" $origin_yaml_path
 
           docker-compose -f $origin_yaml_path up -d "${{ matrix.modsec_version }}"
           docker-compose -f $origin_yaml_path logs
