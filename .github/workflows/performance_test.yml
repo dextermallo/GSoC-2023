@@ -39,7 +39,8 @@ jobs:
         id: "performance_test_init"
         run: |    
 
-          base_dir=${{ matrix.workspace }}
+          base_dir="${{ matrix.workspace }}"
+          echo $base_dir
 
           # inspection
           num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
@@ -51,7 +52,7 @@ jobs:
           fi
 
           # output changes
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > $base_dir/rules-changed.txt
+          $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf') > $base_dir/rules-changed.txt
 
           # copy rule files
           mkdir $base_dir/rules-before $base_dir/rules-after
@@ -133,8 +134,8 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: waf-logs
-          path: tests/logs/${{ matrix.modsec_version }}
+          name: output
+          path: /output
 
       - name: Clean docker-compose
         run: |
