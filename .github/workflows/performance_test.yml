@@ -108,7 +108,6 @@ jobs:
             sudo chmod 644 tests/logs/${{ matrix.modsec_version }}/modsec_audit.log
 
       - uses: actions/upload-artifact@v3
-        if: failure()
         with:
           name: output
           path: /output
