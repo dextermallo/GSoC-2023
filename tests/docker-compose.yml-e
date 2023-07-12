@@ -28,7 +28,7 @@ services:
       VALIDATE_UTF8_ENCODING: 1
     volumes:
       - ./logs/modsec2-apache:/var/log:rw
-      - ./rules-before:/opt/owasp-crs/rules:ro
+      - ../rules:/opt/owasp-crs/rules:ro
       - ../plugins:/opt/owasp-crs/plugins:ro
       - ../crs-setup.conf.example:/etc/modsecurity.d/owasp-crs/crs-setup.conf.example
     entrypoint: ["/bin/sh", "-c", "/bin/cp /etc/modsecurity.d/owasp-crs/crs-setup.conf.example /etc/modsecurity.d/owasp-crs/crs-setup.conf && /docker-entrypoint.sh httpd-foreground"]
@@ -61,7 +61,7 @@ services:
       VALIDATE_UTF8_ENCODING: 1
     volumes:
       - ./logs/modsec3-nginx:/var/log:rw
-      - ./rules-before:/opt/owasp-crs/rules:ro
+      - ../rules:/opt/owasp-crs/rules:ro
       - ../plugins:/opt/owasp-crs/plugins:ro
       - ../crs-setup.conf.example:/etc/modsecurity.d/owasp-crs/crs-setup.conf.example
     entrypoint: ["/bin/sh", "-c", "/bin/cp /etc/modsecurity.d/owasp-crs/crs-setup.conf.example /etc/modsecurity.d/owasp-crs/crs-setup.conf && /docker-entrypoint.sh nginx -g 'daemon off;'"]

@@ -69,35 +69,31 @@ jobs:
         run: |
 
           mkdir -p ./tests/logs/${{ matrix.modsec_version }}
-          # docker-compose -f ./tests/docker-compose.yml up -d "${{ matrix.modsec_version }}"
-          # docker-compose -f ./tests/docker-compose.yml logs
-          # [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
-          # ./ftw run -d tests/regression/tests --show-failures-only
-
-          modsec_version=${{ matrix.modsec_version }}
           origin_yaml_path=./tests/docker-compose.yml
-          before_yaml_path=./tests/before-docker-compose.yml
-          after_yaml_path=./tests/after-docker-compose.yml
 
-          # create and update yaml
-          sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $before_yaml_path
-          sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-after:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $after_yaml_path
+          # update yaml to test on before
+          sed -i -e 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path
+
+          docker-compose -f $origin_yaml_path up -d "${{ matrix.modsec_version }}"
+          docker-compose -f $origin_yaml_path logs
+          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
+          ./ftw run -d tests/regression/tests --show-failures-only          
 
           # test before changes
-          docker-compose -f $before_yaml_path up -d "${{ matrix.modsec_version }}"
-          docker-compose -f $before_yaml_path logs
-          echo "tracker 0"
+          # docker-compose -f $before_yaml_path up -d "${{ matrix.modsec_version }}"
+          # docker-compose -f $before_yaml_path logs
+          # echo "tracker 0"
 
-          cat $before_yaml_path
-          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
+          # cat $before_yaml_path
+          # [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
 
-          echo "tracker 1"
-          ./ftw check -d rules-changed-test
+          # echo "tracker 1"
+          # ./ftw check -d rules-changed-test
           
-          echo "tracker 2"
-          ./ftw run -d rules-changed-test > raw.go_ftw.before.txt
+          # echo "tracker 2"
+          # ./ftw run -d rules-changed-test > raw.go_ftw.before.txt
 
-          echo "tracker 3"
+          # echo "tracker 3"
           # # restart, test with after changes
           # docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
           # docker-compose -f ./tests/docker-compose.yml down
