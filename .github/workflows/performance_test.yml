@@ -39,34 +39,26 @@ jobs:
         run: |    
           
           num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
+          echo "num_changed_rules=$num_changed_rules" >> "$GITHUB_OUTPUT"
 
           # no rule changes
           if [ $num_changed_rules = 0 ]; then
-            echo "num_changed_rules=0" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          
-          # copy rule files
 
-          echo "Tracker 1"
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
 
-          cat rules-changed.txt
-
+          # copy rule files
           mkdir rules-before rules-after
           while read -r filename; do
-          echo $filename
-          echo "Tracker 2"
             git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
             git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
           done < rules-changed.txt
 
           # copy corresponding test files
           mkdir rules-changed-test
-          echo "Tracker 3"
 
           while read -r filename; do
-            echo $filename
             req="${filename#rules/}"
             req="${result%.conf}"
             cp -R tests/regression/tests/$req rules-changed-test/$req
