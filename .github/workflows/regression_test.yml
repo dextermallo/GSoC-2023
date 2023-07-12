@@ -38,7 +38,6 @@ jobs:
           mkdir rules-before rules-after
 
           cur_hash=$(git rev-parse --short "$GITHUB_SHA")
-          cur_hash="2aa7560cd237e6f7a6b56468090f6afc44f7ae0d"
           prev_hash=$(git rev-list --parents -n 1 $cur_hash)
           prev_hash=$(echo $prev_hash | sed "s/$cur_hash //g")
 
