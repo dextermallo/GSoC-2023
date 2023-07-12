@@ -38,27 +38,31 @@ jobs:
         id: "performance_test_init"
         run: |    
           
-          result=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
-
-          echo $result
+          num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
 
           # no rule changes
-          if [ $result = 0 ]; then
+          if [ $num_changed_rules = 0 ]; then
             echo "num_changed_rules=0" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           
           # copy rule files
+
+          echo "Tracker 1"
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
+
+          cat rules-changed.txt
 
           mkdir rules-before rules-after
           while read -r filename; do
+          echo "Tracker 2"
             git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
             git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
           done < $(grep -E 'rules/.*\.conf' rules-changed.txt)
 
           # copy corresponding test files
           mkdir rules-changed-test
+          echo "Tracker 3"
 
           while read -r filename; do
             req="${filename#rules/}"
