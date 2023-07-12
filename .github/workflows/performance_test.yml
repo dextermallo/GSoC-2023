@@ -115,7 +115,7 @@ jobs:
           # # python3 ./test.py
         env:
           FTW_LOGFILE: './tests/logs/${{ matrix.modsec_version }}/error.log'
-        if: steps.performance_test_init.outputs.num_changed_rules == '0'
+        if: steps.performance_test_init.outputs.num_changed_rules != '0'
       # @TODO: create report
 
       - name: "Change permissions if failed"
