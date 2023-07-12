@@ -37,16 +37,16 @@ jobs:
           mkdir rules-before rules-after
 
           cur_hash=$(git rev-parse --short "$GITHUB_SHA")
-          second_hash=github.event.pull_request.head.sha
+          prev_hash=$(git rev-list --parents -n 1 $cur_hash)
 
           echo $cur_hash
-          echo $second_hash
+          echo $prev_hash
 
-          git diff --name-only $cur_hash^ $cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
+          git diff --name-only $prev_hash $cur_hash | grep -E 'rules/.*\.conf' > rules-changed.txt
 
           if [ -s rules-changed.txt ]; then
             while read -r filename; do
-              git show "$cur_hash^:$filename" > "rules-before/${filename#rules/}"
+              git show "$prev_hash:$filename" > "rules-before/${filename#rules/}"
               git show "$cur_hash:$filename" > "rules-after/${filename#rules/}"
             done < rules-changed.txt
           else
