@@ -38,11 +38,8 @@ jobs:
         run: |    
           mkdir rules-before rules-after
 
-          echo ${{ github.event.before }}
-          echo ${{ github.event.after }}
-          
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf'
-          # git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
+          touch rules-changed.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
           
           # check if any rule is changed
           echo "Tracer 2"
@@ -87,7 +84,7 @@ jobs:
 
           if [ ! -s rules-changed.txt ]; then
             echo "skip performance test"
-            return
+            exit_with_success
           fi
 
           # restart, apply customized .conf
