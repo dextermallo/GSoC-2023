@@ -41,7 +41,7 @@ jobs:
 
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep  > rules-changed.txt
 
-          echo ::set-output name=grep_stats::$(grep grep -E 'rules/.*\.conf' rules-changed.txt | wc -l)
+          echo ::set-output name=grep_stats::$(grep -E 'rules/.*\.conf' rules-changed.txt | wc -l)
           if [ $(grep -E 'rules/.*\.conf' action.ts | wc -l) = 0 ]; then
             exit_with_success
           fi
