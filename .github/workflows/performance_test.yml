@@ -54,7 +54,7 @@ jobs:
           mkdir rules-before rules-after
           while read -r filename; do
             git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
-            git show "${{ github.event.after }}:$filename" > "$rules-after/${filename#rules/}"
+            git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
           done < rules-changed.txt
 
           # copy corresponding test files
