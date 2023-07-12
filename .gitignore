@@ -7,3 +7,11 @@ data
 __pycache__
 .coverage
 src/locust/exec.py
+
+# for workflow testing
+rules-after
+rules-before
+rules-changed-test
+after-docker-compose.yml
+before-docker-compose.yml
+rules-changed.txt
