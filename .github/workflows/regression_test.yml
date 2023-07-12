@@ -42,7 +42,9 @@ jobs:
           echo ${{ github.event.after }}
           
           echo "Tracer 1"
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
+
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
+          # git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
           
           # check if any rule is changed
           echo "Tracer 2"
