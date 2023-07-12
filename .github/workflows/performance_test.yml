@@ -37,17 +37,20 @@ jobs:
       - name: "Clone changed rules and corresponding test cases"
         id: "performance_test_init"
         run: |    
+          
+          result=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
 
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} > rules-changed.txt
+          echo $result
 
           # no rule changes
-          if [ $(grep -E 'rules/.*\.conf' rules-changed.txt | wc -l) != 0 ]; then
+          if [ $result = 0 ]; then
             exit 1
           fi
           
           # copy rule files
-          mkdir rules-before rules-after
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
 
+          mkdir rules-before rules-after
           while read -r filename; do
             git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
             git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
