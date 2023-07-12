@@ -35,14 +35,17 @@ jobs:
       # check changed files, clone the old rules in folder /old_rules
       # the old rules are used to compare the new rules with the old ones
       - name: "Clone changed rules and corresponding test cases"
+        id: "p_test"
         run: |    
           mkdir rules-before rules-after
 
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} > rules-changed-raw.txt
-          cat rules-changed-raw.txt
-          $(cat rules-changed-raw.txt | grep -E 'rules/.*\.conf') > rules-changed.txt
-          cat rules-changed.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep  > rules-changed.txt
 
+          echo ::set-output name=grep_stats::$(grep grep -E 'rules/.*\.conf' rules-changed.txt | wc -l)
+          if [ $(grep -E 'rules/.*\.conf' action.ts | wc -l) = 0 ]; then
+            exit_with_success
+          fi
+          
 
           # check if any rule is changed
           echo "Tracer 2"
@@ -120,7 +123,7 @@ jobs:
 
           cat raw.go_ftw.after.txt
           python3 ./test.py          
-
+        if: steps.p_test.outputs.grep_stats != '0'
       # @TODO: create report
 
       - name: "Change permissions if failed"
