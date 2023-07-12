@@ -76,8 +76,8 @@ jobs:
 
           modsec_version=${{ matrix.modsec_version }}
           origin_yaml_path=./tests/docker-compose.yml
-          before_yaml_path=before-docker-compose.yml
-          after_yaml_path=after-docker-compose.yml
+          before_yaml_path=./tests/before-docker-compose.yml
+          after_yaml_path=./tests/after-docker-compose.yml
 
           # create and update yaml
           sed 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path > $before_yaml_path
