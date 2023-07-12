@@ -35,15 +35,13 @@ jobs:
       # check changed files, clone the old rules in folder /old_rules
       # the old rules are used to compare the new rules with the old ones
       - name: "Clone changed rules and corresponding test cases"
-        run: |          
+        run: |    
           mkdir rules-before rules-after
 
           echo ${{ github.event.before }}
           echo ${{ github.event.after }}
           
-          echo "Tracer 1"
-
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf'
           # git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
           
           # check if any rule is changed
@@ -68,7 +66,7 @@ jobs:
 
           else
             echo "no changes on rules"
-            return
+            exit_with_success
           fi
 
       # regression tests
