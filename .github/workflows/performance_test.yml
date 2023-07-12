@@ -68,6 +68,8 @@ jobs:
       - name: "Run performance test for changed rules"
         run: |
 
+          ls /rules/before
+
           # mkdir -p tests/logs/${{ matrix.modsec_version }}
           # docker-compose -f ./tests/docker-compose.yml up -d "${{ matrix.modsec_version }}"
           # docker-compose -f ./tests/docker-compose.yml logs
@@ -78,7 +80,7 @@ jobs:
           origin_yaml_path=./tests/docker-compose.yml
 
           # update yaml to test on before
-          # sed -i -e 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path
+          sed -i -e 's/- ..\/rules:\/opt\/owasp-crs\/rules:ro/- .\/rules-before:\/opt\/owasp-crs\/rules:ro/g' $origin_yaml_path
 
           docker-compose -f $origin_yaml_path up -d "${{ matrix.modsec_version }}"
           docker-compose -f $origin_yaml_path logs
