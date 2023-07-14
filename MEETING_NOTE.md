@@ -174,13 +174,29 @@
 
 > Jul 13, 2023
 >
-> Thread: N/A
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1688074621676979
 
 1. Progress
 
-- [] Usage documentation
-- [] Check on GitHub summary/pipeline integration
-- [] Other utils integration (eBPF)
-- [] Further research on data visualization
+- [x] Usage documentation: https://github.com/dextermallo/GSoC-2023/blob/feat/poc-data-collector/src/README.md
+- [x] Check on GitHub summary/pipeline integration: Done a PoC (https://github.com/dextermallo/GSoC-2023/actions)
+- [x] Other utils integration (eBPF): A PoC of eBPF using dynamic probes (pre-built  tracepoints)
+- [ ] Further research on data visualization: TBD
+
+2. Discussion
+
+- The direction of the util: Should it be pipeline-based or interactive-based?
+    - Christian: Both are important. Interactive-based is essential for local usage, which is much more convenient for developers. Pipeline-based is for CI/CD, which is convenient for maintainers.
+- For pipeline-based, how should we design the threshold?
+    - Felipe/Christian: as long as a threshold is defined on "each rule", they can be adjusted/fine-tuned.
+- Next milestone: what is the next step for the framework? While most of the PoC is implemented, how can people use/maintain it in the future?
+    - Christian: it is important to discuss these items as the GSoC is a short-term project.
+- Some interesting stories behind the CoreRuleSet shared by Christian
 
 2. Next Actions
+
+- Fully automated the current implementation
+- To be tested: Does VM for GitHub Action supports eBPF?
+- Redesign the architecture for the framework to support both interactive and pipeline-based
+- Integrate the concept of "threshold" into the architecture
+- Discuss/Draft 2-nd phase objective/goals
