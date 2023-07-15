@@ -3,7 +3,7 @@ import json
 import pytest
 import signal
 import shutil
-from src.cAdvisor.collector import CAdvisorCollector
+from cAdvisor import CAdvisorCollector
 from src.utils.const import DATA_PATH
 
 

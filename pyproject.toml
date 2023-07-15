@@ -17,6 +17,7 @@ pytest-cov = "^4.1.0"
 gevent = "^22.10.2"
 locust = "^2.15.1"
 pyyaml = "^6.0"
+ping3 = "^4.0.4"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -28,7 +29,6 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-collect-cAdvisor = 'src.cAdvisor.collector:main'
+test = 'src.test:main'
 visualize = 'src.visualizer.main:main'
-collect-ftw = 'src.ftw.collector:main'
 collect-locust = 'src.locust.collector:main'

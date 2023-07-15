@@ -1,7 +1,7 @@
 import os
 import json
-from src.interface.DataFormat import DataFormat
-from src.interface.IDataCollector import IDataCollector
+from src.interface.IUtil import DataFormat
+from IUtil import IDataCollector
 
 
 class MockDataCollector(IDataCollector):

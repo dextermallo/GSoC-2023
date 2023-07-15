@@ -1,9 +1,18 @@
 private
 .DS_Store
 .env
-data
 .ftw.yaml
 
 __pycache__
 .coverage
 src/locust/exec.py
+
+# clones form CRS
+plugins/
+tests/
+crs-setup.conf.example
+
+# test result
+tmp/
+data/
+report/

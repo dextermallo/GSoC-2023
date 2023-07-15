@@ -2,7 +2,7 @@ import pytest
 import json
 import os
 import shutil
-from src.ftw.collector import FTWCollector
+from ftw.ftw import FTWCollector
 from src.utils.const import DATA_PATH
 
 
