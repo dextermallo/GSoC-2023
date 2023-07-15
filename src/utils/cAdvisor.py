@@ -4,7 +4,7 @@ import time
 import subprocess
 from src.interface.IUtil import IUtil
 from src.utils.logger import logger
-from src.type import CommandArg, State
+from src.type import CollectCommandArg, State
 from src.utils.utils import container_is_healthy
 
 
@@ -23,11 +23,11 @@ class CAdvisorUtil(IUtil):
     # @TODO: add to variables
     waf_container_name: str = "modsec2-apache"
 
-    args: CommandArg
+    args: CollectCommandArg
     state: State
     raw_filename: str = "cAdvisor.json"
 
-    def __init__(self, args: CommandArg, state: State):
+    def __init__(self, args: CollectCommandArg, state: State = None):
         self.args = args
         self.state = state
     
@@ -53,7 +53,7 @@ class CAdvisorUtil(IUtil):
         self._save_json_file(f"{self.args.raw_output}/{self.state.name}_{self.raw_filename}", data_list)
         self.__stop_cadvisor()
     
-    def summary(self):
+    def report(self):
         pass
 
     def fetch_data(self, data_list: list, timestamp_set: set, url: str):

@@ -13,7 +13,7 @@ class State(Enum):
     before = "before"
     after = "after"
 
-class CommandArg:
+class CollectCommandArg:
     test_name: str
     utils: List[UtilType]
     before: str
@@ -55,14 +55,41 @@ class CommandArg:
         if not isGitCommitHash(self.after):
             self.after = f"-- {self.after}"
 
-        self.raw_output = raw_output if raw_output else f"./data/{ self.test_name }"
-        self.output = output if output else f"./report/{ self.test_name }"
+        self.raw_output = f"{raw_output}/{self.test_name}" if raw_output else f"./data/{self.test_name}"
+        self.output = f"{output}/{self.test_name}" if output else f"./report/{self.test_name}"
         self.waf_endpoint = waf_endpoint if waf_endpoint else "http://localhost:80"
         
         self.tmp_dir = os.path.join(self.tmp_dir, self.test_name)
         self.before_rules_dir = os.path.join(self.tmp_dir, "before-rules")
         self.after_rules_dir = os.path.join(self.tmp_dir, "after-rules")
         self.test_cases_dir = os.path.join(self.tmp_dir, "test-cases")
+
+class ReportFormat(Enum):
+    text = "text",
+    img = "img"
+
+class ReportCommandArg:
+    test_name: str
+    utils: List[UtilType]
+    output: str
+    raw_output: str
+    threshold_conf: str
+    format: ReportFormat
+    
+    def __init__(self,
+                 test_name: str,
+                 utils: List[UtilType],
+                 output: str,
+                 raw_output: str,
+                 threshold_conf: str,
+                 format: ReportFormat
+                 ):
+        self.test_name = test_name
+        self.utils = utils
+        self.raw_output = f"{raw_output}/{self.test_name}" if raw_output else f"./data/{self.test_name}"
+        self.output = f"{output}/{self.test_name}" if output else f"./report/{self.test_name}"
+        self.threshold_conf = threshold_conf if threshold_conf else None
+        self.format = format if format else ReportFormat.text
 
 class ChangedRule:
     # @TODO: implement id

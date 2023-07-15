@@ -2,7 +2,7 @@ import subprocess
 import os
 from src.utils.logger import logger
 from src.interface.IUtil import IUtil
-from src.type import CommandArg, State
+from src.type import CollectCommandArg, State
 
 
 class LocustUtil(IUtil):
@@ -20,7 +20,7 @@ class LocustUtil(IUtil):
     __runtime = 5
     __test_case_per_file_limit = 100
     
-    def __init__(self, args: CommandArg, state: State):
+    def __init__(self, args: CollectCommandArg, state: State = None):
         self.args = args
         self.state = state
         self.__exec_filename =os.path.join(self.args.tmp_dir, self.__exec_filename)
@@ -41,7 +41,7 @@ class LocustUtil(IUtil):
 
         _ = subprocess.run(command, shell=True, check=False)
     
-    def summary(self):
+    def report(self):
         pass
 
     # currently, we cannot detect whether the website should block (e.g., 405) or not,

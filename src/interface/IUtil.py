@@ -5,6 +5,9 @@ from abc import ABC, abstractmethod
 from typing import Type, List
 from src.utils.logger import logger
 from src.interface.FTWTestSchema import FTWTestSchema, FTWTestInput
+from src.threshold import Threshold
+from src.type import ReportCommandArg, CollectCommandArg
+from termcolor import colored
 
 
 class IUtil(ABC):
@@ -21,7 +24,7 @@ class IUtil(ABC):
     """
 
     @abstractmethod
-    def collect(self):
+    def collect(self, args: CollectCommandArg):
         """_summary_
         read_data() is a method for reading data from a source.
         It is an optional func to be implemented if the data source 
@@ -32,7 +35,7 @@ class IUtil(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def summary(self):
+    def report(self, args: ReportCommandArg):
         """_summary_
         save_raw_data() is a method for saving raw data to a file.
         It follows the func read_data() and is used to save the data, and it 
@@ -42,7 +45,7 @@ class IUtil(ABC):
             NotImplementedError: the method is not implemented
         """
         raise NotImplementedError
-    
+
     def _save_json_file(self, dist_path: str, data: any, cls: Type[json.JSONEncoder] = None):
         """_summary_
 
@@ -177,3 +180,28 @@ class IUtil(ABC):
                 break
 
         return res
+    
+    def _get_threshold(self, file_path: str) -> List[Threshold]:
+        with open(file_path, 'r') as f:
+            raw_data = json.load(f)
+            return [Threshold(**data) for data in raw_data["thresholds"]]
+
+
+    def _create_colored_text_by_value(self, value: any) -> str:
+        color: str
+
+        if type(value) == bool:
+            color = "green" if value else "red"
+        elif type(value) == float or type(value) == int:
+            if value == 0:
+                color = "light_grey"
+            elif value > 0:
+                color = "red"
+                value = f"+{value}"
+            else:
+                color = "green"
+        else:
+            raise Exception("Invalid value type")
+
+        return colored(str(value),color, attrs=["bold"])
+            

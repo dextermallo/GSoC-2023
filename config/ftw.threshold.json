@@ -1,0 +1,28 @@
+{
+    "util_name": "ftw",
+    "threshold_version": "0.0.1",
+    "thresholds": [
+        {
+            "id": 1,
+            "metric_name": "result_is_same",
+            "metric_desc": "all the test result of go-ftw gets the same result",
+            "comparison_unit": "each",
+            "comparison_method": "eq",
+            "data_name": "isSuccess",
+            "threshold": 0,
+            "include_labels": null,
+            "exclude_labels": null
+        },
+        {
+            "id": 2,
+            "metric_name": "exec_time",
+            "metric_desc": "all the test result of go-ftw gets the same result",
+            "comparison_unit": "each",
+            "comparison_method": "eq",
+            "data_name": "isSuccess",
+            "threshold": 0,
+            "include_labels": null,
+            "exclude_labels": null
+        }
+    ]
+}
