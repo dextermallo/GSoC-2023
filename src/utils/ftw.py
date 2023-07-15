@@ -6,6 +6,7 @@ from src.interface.IUtil import IUtil
 from typing import List
 from src.type import CollectCommandArg, State, ReportCommandArg, ReportFormat
 from src.threshold import ParsedDataItem, Threshold
+from src.utils.utils import color_text
 
 
 REPORT_PLAIN_TEXT_FORMAT: str = """
@@ -14,9 +15,6 @@ REPORT_PLAIN_TEXT_FORMAT: str = """
    Success: {before_success} -> {after_success} ({success_changes})
     Failed: {before_failed} -> {after_failed} ({failed_changes})
 Total Time: {before_total_time} -> {after_total_time} ({total_time_changes})
-"""
-
-REPORT_THRESHOLD_FORMAT: str = """
 """
 
 class FTWUtil(IUtil):
@@ -83,6 +81,12 @@ class FTWUtil(IUtil):
             print(report)
             # evaluate threshold
 
+            for threshold in thresholds:
+                if not threshold.isPassed(before_data[threshold.metric_name], after_data[threshold.metric_name]):
+                    print((f"Threshold: {threshold.threshold_name:24} {color_text('failed', 'red', True)}"))
+                else:    
+                    print((f"Threshold: {threshold.threshold_name:24} {color_text('passed', 'green', True)}"))
+
     def parse_data(self, file_path: str) -> dict:
         logger.debug("start: parse_data()")
         # read the raw data from the file
@@ -112,9 +116,9 @@ class FTWUtil(IUtil):
             # parse "runtime"
             res["runtime"] = []
             for rule in raw_data["runtime"]:
-                res["runtime"].append(ParsedDataItem("caseID", rule, [rule]))
+                res["runtime"].append(ParsedDataItem(rule, raw_data["runtime"][rule], [rule, rule.split("-")[0]]))
             
             # parse "totalTime"
             res["totalTime"] = ParsedDataItem("TotalTime", raw_data["TotalTime"], [])
-         
+
         return res

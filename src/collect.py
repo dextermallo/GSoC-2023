@@ -11,6 +11,7 @@ from src.utils.ftw import FTWUtil
 from src.utils.cAdvisor import CAdvisorUtil
 from src.utils.locust import LocustUtil
 from src.utils.utils import container_is_healthy
+from ping3 import ping
 
 
 UtilMapper: dict = {
@@ -119,19 +120,19 @@ def runner(args: CollectCommandArg, changedRules: List[ChangedRule], state: Stat
 
     # run test cases
     for util in args.utils:
-        logger.warning(f"Running {util}...")
-        UtilMapper.get(util)(args, state).collect()
+        logger.info(f"Running {util}...")
+        UtilMapper.get(util)().collect(args, state)
     
     # stop service with docker-compose
     cmd = f"""
     docker-compose -f ./tests/docker-compose-{state.name}.yml stop &&
     docker-compose -f ./tests/docker-compose-{state.name}.yml down
     """
-    subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    subprocess.run(cmd, shell=True, stderr=subprocess.PIPE)
     _ = subprocess.check_output(cmd, shell=True).decode()
 
-def waf_server_is_up(was_endpoint: str) -> bool:
-    timeout, retry = 10, 0
+def waf_server_is_up(waf_endpoint: str) -> bool:
+    timeout, retry = 5, 0
     
     # @TODO: update
     while retry < 3:
@@ -139,6 +140,18 @@ def waf_server_is_up(was_endpoint: str) -> bool:
             return True
         retry += 1
         time.sleep(timeout)
+    
+    retry = 0
+
+    while retry < 3:
+        result = ping(waf_endpoint, timeout=timeout)
+        if result is None or not result:
+            retry += 1
+            time.sleep(timeout)
+            continue
+        else:
+            return True
+
     return False
 
 def cleanup():
