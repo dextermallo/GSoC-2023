@@ -19,24 +19,21 @@ class LocustUtil(IUtil):
     __spawn_rate = 100
     __runtime = 5
     __test_case_per_file_limit = 100
-    
-    def __init__(self, args: CollectCommandArg, state: State = None):
-        self.args = args
-        self.state = state
-        self.__exec_filename =os.path.join(self.args.tmp_dir, self.__exec_filename)
- 
-    def collect(self):
+
+    def collect(self, args: CollectCommandArg, state: State = None):        
+        
+        self.__exec_filename =os.path.join(args.tmp_dir, self.__exec_filename)
         logger.debug("start: collect()")
         
         # init template
-        self.__create_template()
+        self.__create_template(args)
 
         command = f"""locust -f "{self.__exec_filename}" \
                         --headless \
                         -u {self.__max_users} \
                         -r {self.__spawn_rate} \
-                        --host={self.args.waf_endpoint} \
-                        --csv={self.args.raw_output}/{self.state.name}_locust \
+                        --host={args.waf_endpoint} \
+                        --csv={args.raw_output}/{state.name}_locust \
                         -t {self.__runtime}s"""
 
         _ = subprocess.run(command, shell=True, check=False)
@@ -47,11 +44,11 @@ class LocustUtil(IUtil):
     # currently, we cannot detect whether the website should block (e.g., 405) or not,
     # because the origin implementation of go-ftw validate the TP/TN by checking logs
     # ideally, this should be validated using outputs
-    def __create_template(self):
+    def __create_template(self, args: CollectCommandArg):
         """
         @TODO: documentation
         """
-        data = self._parse_ftw_test_file(self.args.test_cases_dir, self.__test_case_per_file_limit)
+        data = self._parse_ftw_test_file(args.test_cases_dir, self.__test_case_per_file_limit)
         
         template = """
 from locust import HttpUser, task

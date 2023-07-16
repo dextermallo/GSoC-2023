@@ -21,24 +21,20 @@ class CAdvisorUtil(IUtil):
     """
     
     # @TODO: add to variables
-    waf_container_name: str = "modsec2-apache"
+    __waf_container_name: str = "modsec2-apache"
 
     args: CollectCommandArg
     state: State
     raw_filename: str = "cAdvisor.json"
-
-    def __init__(self, args: CollectCommandArg, state: State = None):
-        self.args = args
-        self.state = state
     
-    def collect(self):
+    def collect(self, args: CollectCommandArg, state: State = None):
         logger.debug("start: collect()")
         
         # start cAdvisor container
         self.__start_cadvisor()
         
         # start go-ftw
-        proc_ftw_data_collector = subprocess.Popen([f"go-ftw run -d {self.args.test_cases_dir} -o json"],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc_ftw_data_collector = subprocess.Popen([f"go-ftw run -d {args.test_cases_dir} -o json"],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         data_list, timestamp_set = [], set()
         url = f"http://127.0.0.1:8080/api/v1.1/subcontainers/docker/{self.__get_waf_container_id()}"
@@ -50,7 +46,7 @@ class CAdvisorUtil(IUtil):
             time.sleep(15)
         
         self.fetch_data(data_list, timestamp_set, url)
-        self._save_json_file(f"{self.args.raw_output}/{self.state.name}_{self.raw_filename}", data_list)
+        self._save_json_file(f"{args.raw_output}/{state.name}_{self.raw_filename}", data_list)
         self.__stop_cadvisor()
     
     def report(self):
@@ -77,7 +73,7 @@ class CAdvisorUtil(IUtil):
 
     def __get_waf_container_id(self) -> str:
         """_summary_
-        __get_waf_container_id() gets the id of container which name is $WAF_CONTAINER_NAME,
+        __get_waf_container_id() gets the id of container which name is $__waf_container_name,
         the id is used for cAdvisor API.
 
         Returns:
@@ -85,7 +81,7 @@ class CAdvisorUtil(IUtil):
         """
         logger.debug("start: __get_waf_container_id()")
         client = docker.from_env()
-        container = client.containers.get(self.waf_container_name)
+        container = client.containers.get(self.__waf_container_name)
         return container.id
     
     def __start_cadvisor(self):
