@@ -61,7 +61,7 @@ def init(arg: CollectCommandArg):
     os.makedirs(arg.test_cases_dir, exist_ok=True)
 
 def get_changed_rules(arg: CollectCommandArg) -> List[ChangedRule]:
-    exec_cmd = f"git diff --name-only {arg.before} {arg.after} | grep -E \'rules/.*.conf\'"
+    exec_cmd = f"git diff --name-only {arg.before} {arg.after} | grep -E \'rules/.*.conf$\'"
     
     subprocess.run(exec_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = subprocess.check_output(exec_cmd, shell=True).decode()
@@ -78,7 +78,6 @@ def init_tmp_file(arg: CollectCommandArg, changedRules: List[ChangedRule]):
     # copy before-rules
     for changedRule in changedRules:
         cmd = f"git show {arg.before}:rules/{changedRule.req}.conf > {arg.before_rules_dir}/{changedRule.req}.conf"
-        
         subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = subprocess.check_output(cmd, shell=True).decode()
     
