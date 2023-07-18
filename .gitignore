@@ -1,18 +1,22 @@
-private
-.DS_Store
-.env
-.ftw.yaml
 
+.DS_Store
+
+# Pytest
 __pycache__
 .coverage
-src/locust/exec.py
 
 # clones form CRS
 plugins/
 tests/
-crs-setup.conf.example
+rules/
 
-# test result
+# auto-generated files
 tmp/
 data/
 report/
+
+# user-specific files
+.ftw.yaml
+
+# temprary archived
+assets
