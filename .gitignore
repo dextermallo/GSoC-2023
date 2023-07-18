@@ -8,7 +8,6 @@ __pycache__
 # clones form CRS
 plugins/
 tests/
-rules/
 
 # auto-generated files
 tmp/
