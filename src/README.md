@@ -1,3 +1,26 @@
+# Prerequisite
+
+To run the performance test, you need to install the following tools:
+- [Poetry](https://python-poetry.org/docs/#installation)
+- [Python ≥ 3.9.0](https://www.python.org/downloads/)
+- [Docker](https://docs.docker.com/get-docker/)
+
+# Quick Start
+
+```sh
+git clone -b feat/v2-performance-framework git@github.com:dextermallo/GSoC-2023.git
+cd GSoC-2023
+
+source init.sh
+poetry install
+
+# and it is ready to go. Find a rule file and make some changes...
+
+# once finished, run:
+poetry run collect --test-name test --utils ftw,locust,cAdvisor
+poetry run report --test-name test
+```
+
 # 0. Initialization
 
 ```sh

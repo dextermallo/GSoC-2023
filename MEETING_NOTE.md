@@ -201,7 +201,7 @@
 - Integrate the concept of "threshold" into the architecture
 - Discuss/Draft 2-nd phase objective/goals
 
-# Meeting 8
+# Regular updates
 
 > Jul 20, 2023
 >
@@ -209,12 +209,15 @@
 
 1. Progress
 
-- [x] Fully automated the current implementation
-- [ ] To be tested: Does VM for GitHub Action supports eBPF?
+- [x] Fully automated the current implementation: Done
 - [x] Redesign the architecture for the framework to support both interactive and pipeline-based
 - [x] Integrate the concept of "threshold" into the architecture
-- [ ] Discuss/Draft 2-nd phase objective/goals
+- [ ] Discuss/Draft 2-nd phase objective/goals: WIP
+- [ ] To be tested: Does VM for GitHub Action supports eBPF?: TBD
 
-2. Discussion
+2. Next Actions
 
-3. Next Actions
+- [ ] Discuss/Draft 2nd phase objective/goals (Cont.)
+- [ ] Bug/Changes from previous comments.
+- [ ] Create reports for cAdvisor/locust.
+- [ ] Add threshold for cAdvisor/locust.
