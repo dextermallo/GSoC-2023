@@ -1,144 +1,87 @@
-# Implementation
-
-This is a documentation of the implementation of the project. It takes five steps to collect the data and analyze the performance:
-
-1. install all the prerequisites
-2. start a runnable CRS-supported WAF
-3. create .env files and install dependencies
-4. run a data collector and parser if necessary
-5. run the visualizer to compare the results of changes
-
-# 1. Prerequisites
-
-Before starting the project, you need to install the following prerequisites:
-
-- [Docker](https://www.docker.com/)
-- [Python](https://www.python.org/) (>= 3.9.0)
-- [Poetry](https://python-poetry.org/)
-- A runnable CRS-supported WAF (See Section: [2. Start with a WAF](#2-start-with-a-waf))
-- Some data collectors may require additional prerequisites. Related information can be found in each sub-section.
-
-# 2. Start with a WAF
-
-You can follow the [quick start guide](https://coreruleset.org/docs/deployment/quick_start/) from the core rule set to start a CRS-supported WAF. Or you can use `docker compose` and clone the project to start rapidly:
+# 0. Initialization
 
 ```sh
-git clone git@github.com:coreruleset/coreruleset.git
+# To run the performance test, you can initialize the environment by running the following command:
+source ./init.sh
 
-# specify a service name (modsec2-apache or modsec3-nginx)
-docker compose -f './coreruleset/tests/docker-compose.yml' up -d  <service-name>
-```
-
-Noted that if you are only interested in the performance of the CRS **on one specific rule**, you should load as minimal rules as possible. For example, you can load the `REQUEST-920-PROTOCOL-ENFORCEMENT.conf` rule by adding the following line to the `tests/docker-compose.yml` file and removing the `../rules` volume:
-
-```yaml
-    volumes:
-      - ./logs/modsec2-apache:/var/log:rw
-      - ../rules/REQUEST-920-PROTOCOL-ENFORCEMENT.conf:/opt/owasp-crs/rules/REQUEST-920-PROTOCOL-ENFORCEMENT.conf:ro
-      # - ../rules:/opt/owasp-crs/rules:ro
-```
-
-# 3. Create ENV and Install Dependencies
-
-To create the `.env` file, you can copy the `.env.example` file and rename it to `.env`. Then, you can change the values of the variables in the `.env` file.
-
-To install dependencies with poetry and use the virtual environment, follow the commands below:
-```sh
-# use the virtual environment
-poetry env use 3.9.6
-
-# install dependencies
+# and initialize the python environment
 poetry install
 ```
 
-# 4. Data Collector
-
-Next, once the WAF service is up and running, you can decide which data collector you want to use. Currently, there are several data collectors available:
-
-## 4.1. cAdvisor
-
-> *WIP: the data collector is planned to modify on the usage to make it more comprehensive to collect the data.*
-
-To use cAdvisor as a data collector, you can follow the steps below:
+# 1. Start a test
 
 ```sh
-# Start cAdvisor service using Docker before collecting data
-# Ref: https://github.com/google/cadvisor/tree/master#readme
-sudo docker run \
-  --volume=/:/rootfs:ro \
-  --volume=/var/run:/var/run:ro \
-  --volume=/sys:/sys:ro \
-  --volume=/var/lib/docker/:/var/lib/docker:ro \
-  --volume=/dev/disk/:/dev/disk:ro \
-  --publish=8080:8080 \
-  --detach=true \
-  --name=cadvisor \
-  --privileged \
-  --device=/dev/kmsg \
-  gcr.io/cadvisor/cadvisor:v0.45.0
+# One-liner to start your performance test, where --test-name represents the name of the test, and --utils represents the util for testing.
+# by default, the command will compare HEAD (the latest commit) and . (which is the current directory) to get the changes
+poetry run collect --test-name test --utils ftw
 
-# Next, use poetry to run the collector, noted that you will need to specific a group name
-# As an identifier when analyzing the data. For example, `ca-before-rule-920170-change`
-# if the group name is not specified, it will create a random group name directly.
-GROUP_NAME=ca-before-rule-920170-change
-poetry run collect-cAdvisor $GROUP_NAME
+# or multiple utils at a time
+poetry run collect --test-name test --utils ftw,locust,cAdvisor
 
-# Once it is up and running, it will be executed in the foreground,
-# you can start to test your rule changes. For instance, using go-ftw:
-# Ref: https://github.com/coreruleset/go-ftw
-go-ftw run -d $TEST_FILE_LOCATION -i 920170 --show-failures-only
+# specify your commit
+poetry run collect --test-name test --before $GITHUB_COMMIT_A --after $GITHUB_COMMIT_B --utils ftw
 
-# Once the test is finished, you can stop the collector by pressing `Ctrl + C`
-# Then, apply your rule changes and start the collector again with another group name:
-# `ca-after-rule-920170-change`
+# If you want to test on the latest cahanges, you can use the following command:
+poetry run collect --test-name "latest-command-changes" --utils "ftw" --before HEAD^ --after HEAD
+
+# The test will generate these files, directories, and corresponding services automatically:
+# -- Project directory
+#     |-- report (report data created by command `poetry run report`)
+#          |-- $TEST_NAME
+#               |-- _before_<util>_report
+#     |-- data (raw data collected from the util)
+#          |-- $TEST_NAME
+#               |-- <state>_<util>.data (e.g., before_ftw.json, after_locust_stats_history.json)
+#     |-- tmp (stores the temprary files during the test)
+#          |-- $TEST_NAME
+#               |-- after-rules (the rules after the changes)
+#               |-- before-rules (the rules before the changes)
+#               |-- test-cases (the test cases related to the changed rules)
+#               |-- exec.py (the script created by locust to run the test)
+
+# Specifically, the command has the following options:
+# --test-name       (required): the name of the test
+# --utils           (required): util for testing, if there is multiple utils, use comma to separate them
+# --before          (optional): git commit hash, default=HEAD
+# --after           (optional): git commit hash, or a path to a directory (default=.), Noted that only --after supports the local path.
+# --raw-output      (optional): default is ./data
+# --output          (optional): default is ./report
+# --waf-endpoint    (optional): default is http://localhost:80
+
+# @TODO
+# --clean-history   (optional): default is false, clean the tmp
 ```
 
-## 4.2. go-ftw
-
-> Prerequisite: Before using go-ftw data collector, you will need to install go-ftw and create its configuration. Please refer to the [Install](https://github.com/coreruleset/go-ftw) in go-ftw.
-> 
-> For the configuration, you can copy the `.example.ftw.yaml` file and rename it to `.ftw.yaml`. and change the values of the variables in it.
+# 2. Get reports
 
 ```sh
-# Start go-ftw service using Docker before collecting data with variables:
-# $GROUP_NAME (Optional): a group name as an identifier when analyzing the data. If not specified, it will create a random group name directly.
-# $RULE_ID (Optional): a rule id to test. If not specified, it will test all the rules.
-poetry run collect-ftw $GROUP_NAME $RULE_ID
+# --test-name       (required)
+# --threshold-conf  (optional): default is none
+# --raw-output      (optional): default is ./data
+# --output          (optional): default is ./report
+# --format          (optional): default is text
+# --utils           (optional): default is all
+
+# without threshold
+poetry run report --test-name test
+
+# using threshold
+poetry run report --test-name test --utils ftw --threshold "./config" -format text
 ```
 
-## 4.3 eBPF `(WIP)`
-
-## 4.4 locust
-
-To run locust data collector, you can use the following command:
+# 3. Other commands
 
 ```sh
-# Start locust service using Docker before collecting data with variables:
-# $GROUP_NAME (Optional): a group name as an identifier when analyzing the data. If not specified, it will create a random group name directly.
-# $RULE_ID (Required): a rule id to test. If not specified, it will test all the rules.
-poetry run collect-locust -g $GROUP_NAME -id $RULE_ID
+# other command
+poetry run check-threshold --file $THRESHOLD_CONF
+poetry run check-threshold --file $THRESHOLD_CONF
 ```
 
-# 5. Visualizer
+# 4. Pipeline Integration `(WIP)`
 
-> *WIP: There is a planned refactor on the visualizer. As the project is currently under the rapid development, we suggest not using this feature*
+# 5. Write your Own Data Collector `(WIP)`
 
-Visualizer is a tool to compare the performance of the CRS before and after the rule changes. To use the visualizer, you can follow the steps below:
-
-```sh
-# enter interaction mode
-poetry run visualize
-
-# Once it is up and running, you can use the following commands to add data sources:
-add-group $GROUP_NAME_A # e.g., add-group ca-before-rule-920170-change
-add-group $GROUP_NAME_A # e.g., add-group ca-after-rule-920170-change
-```
-
-# Pipeline Integration `(WIP)`
-
-# Write your Own Data Collector and Parser `(WIP)`
-
-# Tests
+# 6. Tests
 
 To run the unit tests and yield a test coverage report of the framework, you can follow the commands below:
 

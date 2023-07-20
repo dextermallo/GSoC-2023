@@ -193,10 +193,28 @@
     - Christian: it is important to discuss these items as the GSoC is a short-term project.
 - Some interesting stories behind the CoreRuleSet shared by Christian
 
-2. Next Actions
+3. Next Actions
 
 - Fully automated the current implementation
 - To be tested: Does VM for GitHub Action supports eBPF?
 - Redesign the architecture for the framework to support both interactive and pipeline-based
 - Integrate the concept of "threshold" into the architecture
 - Discuss/Draft 2-nd phase objective/goals
+
+# Meeting 8
+
+> Jul 20, 2023
+>
+> Thread: N/A
+
+1. Progress
+
+- [x] Fully automated the current implementation
+- [ ] To be tested: Does VM for GitHub Action supports eBPF?
+- [x] Redesign the architecture for the framework to support both interactive and pipeline-based
+- [x] Integrate the concept of "threshold" into the architecture
+- [ ] Discuss/Draft 2-nd phase objective/goals
+
+2. Discussion
+
+3. Next Actions

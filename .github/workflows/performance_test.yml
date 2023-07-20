@@ -38,6 +38,11 @@ jobs:
         id: "performance_test_init"
         run: |    
 
+          # test for ebpf
+          which dcsnoop.bt
+          which dcsnoop
+          which bpftrace
+
           # inspection
           num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
           echo "num_changed_rules=$num_changed_rules" >> "$GITHUB_OUTPUT"
