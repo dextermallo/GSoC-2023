@@ -14,11 +14,12 @@ cd GSoC-2023
 source init.sh
 poetry install
 
-# and it is ready to go. Find a rule file and make some changes...
+# And it is ready to go. Find a rule file and make some changes...
+# The framework will automatically detect your local changes and compared them with HEAD (latest commit)
 
 # once finished, run:
-poetry run collect --test-name test --utils ftw,locust,cAdvisor
-poetry run report --test-name test
+poetry run collect --test-name test --utils ftw
+poetry run report --test-name test --utils ftw --threshold "./config"
 ```
 
 # 0. Initialization
