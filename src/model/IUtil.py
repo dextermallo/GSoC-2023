@@ -3,12 +3,43 @@ import os
 import json
 from abc import ABC, abstractmethod
 from typing import Type, List
-from src.utils.logger import logger
-from src.interface.FTWTestSchema import FTWTestSchema, FTWTestInput
-from src.threshold import Threshold
+from src.utils import logger
+from .Threshold import Threshold
 from src.type import ReportCommandArg, CollectCommandArg
 from termcolor import colored
 
+
+class _FTWTestInput:
+    """_summary_
+    @TODO: documentation
+    """
+    method: str = "GET"
+    port: int = 80
+    headers: dict = {}
+    data: str = ""
+    uri: str = "/"
+    
+    def __init__(self, dict: dict):
+        for k, v in dict.items():
+            setattr(self, k, v)
+        
+        HTTP_METHOD_LIST = ["GET", "HEAD", "POST", "PUT", "DELETE"
+                            , "OPTIONS", "TRACE", "PATCH"]
+        
+        if self.method not in HTTP_METHOD_LIST:
+            logger.error(f"Invalid method: {self.method}, replace for 'GET to bypass'")
+            self.method = "GET"
+
+class _FTWTestSchema:
+    """_summary_
+    @TODO: documentation
+    """
+    test_title: str
+    stages: List[_FTWTestInput]
+    
+    def __init__(self, test_title: str, stages: List[_FTWTestInput]):
+        self.test_title = test_title
+        self.stages = stages
 
 class IUtil(ABC):
     """_summary_
@@ -100,7 +131,7 @@ class IUtil(ABC):
         """
         os.makedirs(os.path.dirname(dist_path), exist_ok=True)
        
-    def _retrieve_rule_test_file_by_id(self, file_path: str, rule_id: str) -> List[FTWTestSchema]:
+    def _retrieve_rule_test_file_by_id(self, file_path: str, rule_id: str) -> List[_FTWTestSchema]:
         """_summary_
         @TODO: documentation
         Args:
@@ -110,7 +141,7 @@ class IUtil(ABC):
             Exception: _description_
 
         Returns:
-            List[FTWTestSchema]: _description_
+            List[_FTWTestSchema]: _description_
         """
         logger.debug('start: _retrieve_rule_test_file_by_id()')
 
@@ -125,20 +156,20 @@ class IUtil(ABC):
                 if rule_id in file_name:
                     matched.append(os.path.join(root, file_name))
 
-        data: List[FTWTestSchema] = []
+        data: List[_FTWTestSchema] = []
 
         for i in matched:
             data += self.parse_go_ftw_yaml(i)
 
         return data
     
-    def _parse_ftw_test_file(self, file_path: str, case_limit: int) -> List[FTWTestSchema]:
+    def _parse_ftw_test_file(self, file_path: str, case_limit: int) -> List[_FTWTestSchema]:
         logger.debug('start: _retrieve_rule_test_file_by_id()')
 
         if file_path is None:
             raise Exception("file_path is None")
         
-        data: List[FTWTestSchema] = []
+        data: List[_FTWTestSchema] = []
         
         # find filename which match the rule id
         for root, _, files in os.walk(file_path):
@@ -147,14 +178,14 @@ class IUtil(ABC):
 
         return data
     
-    def parse_go_ftw_yaml(self, file_path: str, case_limit: int = 1e10) -> List[FTWTestSchema]:
+    def parse_go_ftw_yaml(self, file_path: str, case_limit: int = 1e10) -> List[_FTWTestSchema]:
         """_summary_
         @TODO: documentation
         Args:
             file_path (str): _description_
 
         Returns:
-            List[FTWTestSchema]: _description_
+            List[_FTWTestSchema]: _description_
         """
         with open(file_path, 'r') as file:
             data = yaml.safe_load(file)
@@ -165,15 +196,15 @@ class IUtil(ABC):
         
         for data in data["tests"]:
             test_title = data['test_title']
-            inputs: List[FTWTestInput] = []
+            inputs: List[_FTWTestInput] = []
             
             for stage in data['stages']:
-                inputs.append(FTWTestInput(stage["stage"]["input"]))
+                inputs.append(_FTWTestInput(stage["stage"]["input"]))
                 cnt += 1
                 if cnt >= case_limit:
                     break
                 
-            test = FTWTestSchema(test_title, inputs)
+            test = _FTWTestSchema(test_title, inputs)
             res.append(test)
             
             if cnt >= case_limit:
@@ -204,4 +235,3 @@ class IUtil(ABC):
             raise Exception("Invalid value type")
 
         return colored(str(value),color, attrs=["bold"])
-            

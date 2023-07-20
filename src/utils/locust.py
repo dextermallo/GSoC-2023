@@ -1,7 +1,7 @@
 import subprocess
 import os
-from src.utils.logger import logger
-from src.interface.IUtil import IUtil
+from src.utils import logger
+from src.model.IUtil import IUtil
 from src.type import CollectCommandArg, State
 
 

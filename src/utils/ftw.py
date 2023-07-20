@@ -1,21 +1,21 @@
 import subprocess
 import os
 import json
-from src.utils.logger import logger
-from src.interface.IUtil import IUtil
 from typing import List
+from src.utils import logger, color_text
+from src.model.IUtil import IUtil, Threshold
+from src.model.ParsedDataItem import ParsedDataItem
 from src.type import CollectCommandArg, State, ReportCommandArg, ReportFormat
-from src.threshold import ParsedDataItem, Threshold
-from src.utils.utils import color_text
 
 
-REPORT_PLAIN_TEXT_FORMAT: str = """
- Test Name: {test_name}
-       Run: {before_run} -> {after_run} ({run_changes})
-   Success: {before_success} -> {after_success} ({success_changes})
-    Failed: {before_failed} -> {after_failed} ({failed_changes})
-Total Time: {before_total_time} -> {after_total_time} ({total_time_changes})
-"""
+
+REPORT_PLAIN_TEXT_FORMAT: str = (
+    "Test Name: {test_name}\n",
+    "Run: {before_run} -> {after_run} ({run_changes})\n",
+    "Success: {before_success} -> {after_success} ({success_changes})",
+    "Failed: {before_failed} -> {after_failed} ({failed_changes})",
+    "Total Time: {before_total_time} -> {after_total_time} ({total_time_changes})"
+)
 
 class FTWUtil(IUtil):
     """_summary_

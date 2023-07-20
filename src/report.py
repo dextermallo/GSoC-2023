@@ -1,17 +1,9 @@
 import argparse
 import sys
 import os
-from src.type import ReportCommandArg, UtilType
-from src.utils.ftw import FTWUtil
-from src.utils.cAdvisor import CAdvisorUtil
-from src.utils.locust import LocustUtil
+from src.type import ReportCommandArg
+from src.utils import UtilMapper
 
-
-UtilMapper: dict = {
-    UtilType.ftw.name: FTWUtil,
-    UtilType.cAdvisor.name: CAdvisorUtil,
-    UtilType.locust.name: LocustUtil
-}
 
 def get_summary_command_arg(*args) -> ReportCommandArg:
     parser = argparse.ArgumentParser(description='WAF Test Command Parser')

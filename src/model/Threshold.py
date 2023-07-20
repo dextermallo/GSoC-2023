@@ -1,16 +1,16 @@
 from enum import Enum
 from typing import List
-from src.utils.logger import logger
-from src.utils.utils import color_text
+from .ParsedDataItem import ParsedDataItem
+from src.utils import color_text, logger
 
 
-class ComparisonUnit(Enum):
+class _ComparisonUnit(Enum):
     each = 1,
     average = 2,
     sum = 3,
     cnt = 4
 
-class ComparisonMethod(Enum):
+class _ComparisonMethod(Enum):
     eq = 1,
     ne = 2,
     gt = 3,
@@ -24,39 +24,30 @@ class ComparisonMethod(Enum):
     ratioIsGe = 9
     ratioIsLe = 10
 
-data_processing_fn = {
-    ComparisonMethod.eq.name: lambda a, b: a == b,
-    ComparisonMethod.ne.name: lambda a, b: a != b,
-    ComparisonMethod.ge.name: lambda a, b: a > b,
-    ComparisonMethod.lt.name: lambda a, b: a < b,
-    ComparisonMethod.ge.name: lambda a, b: a >= b,
-    ComparisonMethod.le.name: lambda a, b: a <= b,
-    ComparisonMethod.ratioIsGt.name: lambda a, b: a > b,
-    ComparisonMethod.ratioIsLt.name: lambda a, b: a < b,
-    ComparisonMethod.ratioIsGe.name: lambda a, b: a >= b,
-    ComparisonMethod.ratioIsLe.name: lambda a, b: a <= b,
+_data_processing_fn = {
+    _ComparisonMethod.eq.name: lambda a, b: a == b,
+    _ComparisonMethod.ne.name: lambda a, b: a != b,
+    _ComparisonMethod.ge.name: lambda a, b: a > b,
+    _ComparisonMethod.lt.name: lambda a, b: a < b,
+    _ComparisonMethod.ge.name: lambda a, b: a >= b,
+    _ComparisonMethod.le.name: lambda a, b: a <= b,
+    _ComparisonMethod.ratioIsGt.name: lambda a, b: a > b,
+    _ComparisonMethod.ratioIsLt.name: lambda a, b: a < b,
+    _ComparisonMethod.ratioIsGe.name: lambda a, b: a >= b,
+    _ComparisonMethod.ratioIsLe.name: lambda a, b: a <= b,
 }
 
-class ComparisonObject(Enum):
+class _ComparisonObject(Enum):
     threshold = 1,
     before = 2,
-
-class ParsedDataItem:
-    key: any
-    value: any
-    labels: set
-    def __init__(self, key: any, value: any, labels: List[str]):
-        self.key = key
-        self.value = value
-        self.labels = set(labels)
 
 class Threshold:
     id: int
     threshold_name: str
     threshold_desc: str
-    comparison_unit: ComparisonUnit
-    comparison_method: ComparisonMethod
-    comparison_object: ComparisonObject
+    comparison_unit: _ComparisonUnit
+    comparison_method: _ComparisonMethod
+    comparison_object: _ComparisonObject
     metric_name: str
 
     threshold: float
@@ -71,9 +62,9 @@ class Threshold:
                  id: int,
                  threshold_name: str,
                  threshold_desc: str,
-                 comparison_unit: ComparisonUnit,
-                 comparison_method: ComparisonMethod,
-                 comparison_object: ComparisonObject,
+                 comparison_unit: _ComparisonUnit,
+                 comparison_method: _ComparisonMethod,
+                 comparison_object: _ComparisonObject,
                  metric_name: str,
                  threshold: float,
                  include_labels: List[str],
@@ -113,7 +104,7 @@ class Threshold:
             logger.error("current support data type: int, float, bool, str")
             return False
         
-        if self.comparison_method in [7, 8, 9, 10] and self.comparison_object == ComparisonObject.threshold:
+        if self.comparison_method in [7, 8, 9, 10] and self.comparison_object == _ComparisonObject.threshold:
             logger.error("rate comparison method only support with object: before")
             return False
         
@@ -122,32 +113,32 @@ class Threshold:
         after_data = [data for data in after_data if self.__filter_by_labels(data)]
         
         # process value by comparison_unit
-        if self.comparison_unit == ComparisonUnit.cnt.name:
+        if self.comparison_unit == _ComparisonUnit.cnt.name:
             before_data = [ParsedDataItem("cnt", len(before_data), [])]
             after_data = [ParsedDataItem("cnt", len(after_data), [])]
-        elif self.comparison_unit == ComparisonUnit.sum.name:
+        elif self.comparison_unit == _ComparisonUnit.sum.name:
             before_data = [ParsedDataItem("sum", sum([data.value for data in before_data]), [])]
             after_data = [ParsedDataItem("sum", sum([data.value for data in after_data]), [])]
-        elif self.comparison_unit == ComparisonUnit.average.name:
+        elif self.comparison_unit == _ComparisonUnit.average.name:
             before_data = [ParsedDataItem("average", sum([data.value for data in before_data]) / len(before_data), [])]
             after_data = [ParsedDataItem("average", sum([data.value for data in after_data]) / len(after_data), [])]
-        elif self.comparison_unit == ComparisonUnit.each.name:
+        elif self.comparison_unit == _ComparisonUnit.each.name:
             pass
         
         # evaluate the value
         # @TODO: current only support same-length data
         # impl a non-length-sensitive version (e.g., time)
-        if self.comparison_unit == ComparisonUnit.each and len(before_data) != len(after_data):
+        if self.comparison_unit == _ComparisonUnit.each and len(before_data) != len(after_data):
             raise Exception("before_data and after_data have different length")
 
         passed, res = False, True
         for idx in range(len(after_data)):
             # @TODO: optimize enum issue
-            if self.comparison_method in [ComparisonMethod.ratioIsGt.name, ComparisonMethod.ratioIsLt.name, ComparisonMethod.ratioIsGe.name, ComparisonMethod.ratioIsLe.name]:
+            if self.comparison_method in [_ComparisonMethod.ratioIsGt.name, _ComparisonMethod.ratioIsLt.name, _ComparisonMethod.ratioIsGe.name, _ComparisonMethod.ratioIsLe.name]:
                 ratio = after_data[idx].value / before_data[idx].value
-                passed = data_processing_fn[self.comparison_method](self.threshold, ratio)
+                passed = _data_processing_fn[self.comparison_method](self.threshold, ratio)
             else:
-                passed = data_processing_fn[self.comparison_method](before_data[idx].value, after_data[idx].value)
+                passed = _data_processing_fn[self.comparison_method](before_data[idx].value, after_data[idx].value)
             
             if not passed:
                 print(color_text((

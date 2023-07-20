@@ -2,10 +2,12 @@ import docker
 import requests
 import time
 import subprocess
-from src.interface.IUtil import IUtil
-from src.utils.logger import logger
-from src.type import CollectCommandArg, State
-from src.utils.utils import container_is_healthy
+import json
+from src.model.IUtil import IUtil
+from src.model.ParsedDataItem import ParsedDataItem
+from src.type import CollectCommandArg, State, ReportCommandArg
+from .fn import container_is_healthy, create_time_series__terminal_plot
+from .logger import logger
 
 
 class CAdvisorUtil(IUtil):
@@ -49,8 +51,39 @@ class CAdvisorUtil(IUtil):
         self._save_json_file(f"{args.raw_output}/{state.name}_{self.raw_filename}", data_list)
         self.__stop_cadvisor()
     
-    def report(self):
-        pass
+    def report(self, args: ReportCommandArg):
+        logger.debug("start: report()")
+        
+        before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
+        after_data = self.parse_data(f"{args.raw_output}/{State.after.name}_{self.raw_filename}")
+        
+        create_time_series__terminal_plot(before_data["cpu_total"], after_data["cpu_total"], self.get_terminal_column())
+        
+            
+            
+        
+    def parse_data(self, file_path: str):
+        logger.debug("start: parse_data()")
+        res = {
+            "cpu_total": [],
+            "cpu_user": [],
+            "cpu_system": [],
+            "memory_usage": [],
+            "memory_cache": []
+        }
+        
+        with open(file_path, "r") as f:
+            raw_data = json.load(f)
+            
+            for data in raw_data:
+                res["cpu_total"].append(ParsedDataItem(data["timestamp"], data["cpu"]["usage"]["total"]))
+                res["cpu_user"].append(ParsedDataItem(data["timestamp"], data["cpu"]["usage"]["user"]))
+                res["cpu_system"].append(ParsedDataItem(data["timestamp"], data["cpu"]["usage"]["system"]))
+                res["memory_usage"].append(ParsedDataItem(data["timestamp"], data["memory"]["usage"]))
+                res["memory_cache"].append(ParsedDataItem(data["timestamp"], data["memory"]["cache"]))
+            
+        return res
+        
 
     def fetch_data(self, data_list: list, timestamp_set: set, url: str):
         try:
