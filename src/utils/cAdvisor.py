@@ -3,10 +3,13 @@ import requests
 import time
 import subprocess
 import json
+import os
+from typing import List
 from src.model.Util import Util
+from src.model.Threshold import Threshold
 from src.model.ParsedDataItem import ParsedDataItem
 from src.type import CollectCommandArg, State, ReportCommandArg
-from .fn import container_is_healthy, create_time_series_terminal_plot, save_json
+from .fn import container_is_healthy, create_time_series_terminal_plot, save_json, color_text
 from .logger import logger
 
 
@@ -57,6 +60,17 @@ class CAdvisorUtil(Util):
         
         for matrix in ["cpu_total", "cpu_user", "cpu_system", "memory_usage", "memory_cache"]:
             print(create_time_series_terminal_plot(matrix, before_data[matrix], after_data[matrix]))
+            
+        if not args.threshold_conf:
+            return
+        
+        thresholds: List[Threshold] = self._get_threshold(os.path.join(args.threshold_conf, "cAdvisor.threshold.json"))
+
+        for threshold in thresholds:
+            if not threshold.isPassed(before_data[threshold.metric_name], after_data[threshold.metric_name]):
+                print((f"Threshold: {threshold.threshold_name:24} {color_text('failed', 'red', True)}"))
+            else:    
+                print((f"Threshold: {threshold.threshold_name:24} {color_text('passed', 'green', True)}"))
 
     
     def figure_report(self, args: ReportCommandArg):
@@ -135,7 +149,7 @@ class CAdvisorUtil(Util):
         """    
         
         try:
-            subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             logger.info("Waiting for cAdvisor to be up...")
 
             cnt = 0
@@ -150,7 +164,7 @@ class CAdvisorUtil(Util):
     def __stop_cadvisor(self):
         cmd = "docker stop cadvisor && docker rm cadvisor"
         try:
-            subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except Exception as e:
             logger.error(e)
             exit(1)
