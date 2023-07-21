@@ -1,23 +1,22 @@
 import subprocess
 import os
 import json
-from src.utils.logger import logger
-from src.interface.IUtil import IUtil
 from typing import List
-from src.type import CollectCommandArg, State, ReportCommandArg, ReportFormat
-from src.threshold import ParsedDataItem, Threshold
-from src.utils.utils import color_text
+from src.utils import logger, color_text, create_colored_text_by_value
+from src.model.Util import Util, Threshold
+from src.model.ParsedDataItem import ParsedDataItem
+from src.type import CollectCommandArg, State, ReportCommandArg
 
 
-REPORT_PLAIN_TEXT_FORMAT: str = """
- Test Name: {test_name}
-       Run: {before_run} -> {after_run} ({run_changes})
-   Success: {before_success} -> {after_success} ({success_changes})
-    Failed: {before_failed} -> {after_failed} ({failed_changes})
-Total Time: {before_total_time} -> {after_total_time} ({total_time_changes})
-"""
+REPORT_PLAIN_TEXT_FORMAT: str = (
+    " Test Name: {test_name}\n"
+    "       Run: {before_run:12} -> {after_run} ({run_changes})\n"
+    "   Success: {before_success:12} -> {after_success} ({success_changes})\n"
+    "    Failed: {before_failed:12} -> {after_failed} ({failed_changes})\n"
+    "Total Time: {before_total_time:12} -> {after_total_time} ({total_time_changes})\n"
+)
 
-class FTWUtil(IUtil):
+class FTWUtil(Util):
     """_summary_
     FTWCollector is a class for collecting data from go-ftw, it utilizes the go-ftw
     for calling the testcases and parsing the data.
@@ -35,59 +34,55 @@ class FTWUtil(IUtil):
     raw_filename: str = "ftw.json"
 
     def collect(self, args: CollectCommandArg, state: State = None):
-        logger.debug("start: read_data()")
-
         # create the directory if not exist, and use go-ftw to run the test
         command = f'go-ftw run -d {args.test_cases_dir} -o json > {args.raw_output}/{state.name}_{self.raw_filename}'
         _ = subprocess.run(command, shell=True, check=False)
     
-    def report(self, args: ReportCommandArg):
+    def text_report(self, args: ReportCommandArg):
         logger.debug("start: report()")
 
-        # get data
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
         after_data = self.parse_data(f"{args.raw_output}/{State.after.name}_{self.raw_filename}")
 
-        # get threshold
-        thresholds: List[Threshold] = []
+        run_changes = create_colored_text_by_value(before_data["run"].value - after_data["run"].value)
+        success_changes = create_colored_text_by_value(len(before_data["success"]) - len(after_data["success"]))
+        failed_changes = create_colored_text_by_value(len(before_data["failed"]) - len(after_data["failed"]))
+        total_time_changes = create_colored_text_by_value(before_data["totalTime"].value - after_data["totalTime"].value)
         
-        if args.threshold_conf:    
-            thresholds = self._get_threshold(os.path.join(args.threshold_conf, "ftw.threshold.json"))
+        # generate report
+        report = REPORT_PLAIN_TEXT_FORMAT.format(
+            test_name=args.test_name,
+            before_run=before_data["run"].value,
+            after_run=after_data["run"].value,
+            run_changes=run_changes,
+            before_success=len(before_data["success"]),
+            after_success=len(after_data["success"]),
+            success_changes=success_changes,
+            before_failed=len(before_data["failed"]),
+            after_failed=len(after_data["failed"]),
+            failed_changes=failed_changes,
+            before_total_time=before_data["totalTime"].value,
+            after_total_time=after_data["totalTime"].value,
+            total_time_changes=total_time_changes
+        )
         
-        if args.format == ReportFormat.text:
+        print(report)
 
-            run_changes = self._create_colored_text_by_value(before_data["run"].value - after_data["run"].value)
-            success_changes = self._create_colored_text_by_value(len(before_data["success"]) - len(after_data["success"]))
-            failed_changes = self._create_colored_text_by_value(len(before_data["failed"]) - len(after_data["failed"]))
-            total_time_changes = self._create_colored_text_by_value(before_data["totalTime"].value - after_data["totalTime"].value)
-            
-            # generate report
-            report = REPORT_PLAIN_TEXT_FORMAT.format(
-                test_name=args.test_name,
-                before_run=before_data["run"].value,
-                after_run=after_data["run"].value,
-                run_changes=run_changes,
-                before_success=len(before_data["success"]),
-                after_success=len(after_data["success"]),
-                success_changes=success_changes,
-                before_failed=len(before_data["failed"]),
-                after_failed=len(after_data["failed"]),
-                failed_changes=failed_changes,
-                before_total_time=before_data["totalTime"].value,
-                after_total_time=after_data["totalTime"].value,
-                total_time_changes=total_time_changes
-            )
-            
-            print(report)
-            # evaluate threshold
+        if not args.threshold_conf:
+            return
 
-            for threshold in thresholds:
-                if not threshold.isPassed(before_data[threshold.metric_name], after_data[threshold.metric_name]):
-                    print((f"Threshold: {threshold.threshold_name:24} {color_text('failed', 'red', True)}"))
-                else:    
-                    print((f"Threshold: {threshold.threshold_name:24} {color_text('passed', 'green', True)}"))
+        thresholds: List[Threshold] = self._get_threshold(os.path.join(args.threshold_conf, "ftw.threshold.json"))
 
-    def parse_data(self, file_path: str) -> dict:
+        for threshold in thresholds:
+            if not threshold.isPassed(before_data[threshold.metric_name], after_data[threshold.metric_name]):
+                print((f"Threshold: {threshold.threshold_name:24} {color_text('failed', 'red', True)}"))
+            else:    
+                print((f"Threshold: {threshold.threshold_name:24} {color_text('passed', 'green', True)}"))
+
+    def figure_report(self, args: ReportCommandArg):
+        pass
+
+    def parse_data(self, file_path: str) -> dict[str, List[ParsedDataItem]]:
         logger.debug("start: parse_data()")
         # read the raw data from the file
         res = {}

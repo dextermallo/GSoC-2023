@@ -3,22 +3,12 @@ import sys
 import os
 import time
 from typing import List
-from src.utils.logger import logger
 import subprocess
 import shutil
-from src.type import CollectCommandArg, State, ChangedRule, UtilType
-from src.utils.ftw import FTWUtil
-from src.utils.cAdvisor import CAdvisorUtil
-from src.utils.locust import LocustUtil
-from src.utils.utils import container_is_healthy
+from src.type import CollectCommandArg, State, ChangedRule
+from src.utils import UtilMapper, container_is_healthy, logger
 from ping3 import ping
 
-
-UtilMapper: dict = {
-    UtilType.ftw.name: FTWUtil,
-    UtilType.cAdvisor.name: CAdvisorUtil,
-    UtilType.locust.name: LocustUtil
-}
 
 def get_test_command_arg(*args) -> CollectCommandArg:
     parser = argparse.ArgumentParser(description='WAF Test Command Parser')
@@ -110,7 +100,7 @@ def init_docker_compose_file(arg: CollectCommandArg, state: State):
 def runner(args: CollectCommandArg, changedRules: List[ChangedRule], state: State):
     # start service with docker-compose
     cmd = f"docker-compose -f ./tests/docker-compose-{state.name}.yml up -d {args.modsec_version}"
-    subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     _ = subprocess.check_output(cmd, shell=True).decode()
 
     # check it's up and running
@@ -127,7 +117,7 @@ def runner(args: CollectCommandArg, changedRules: List[ChangedRule], state: Stat
     docker-compose -f ./tests/docker-compose-{state.name}.yml stop &&
     docker-compose -f ./tests/docker-compose-{state.name}.yml down
     """
-    subprocess.run(cmd, shell=True, stderr=subprocess.PIPE)
+    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     _ = subprocess.check_output(cmd, shell=True).decode()
 
 def waf_server_is_up(waf_endpoint: str) -> bool:
