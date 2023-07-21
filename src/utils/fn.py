@@ -1,12 +1,14 @@
 import docker
 import asciichartpy as asciichart
 import dateutil.parser as date_parser
+from astropy.table import Table
 from termcolor import colored
 from typing import Type, List
 import json
 import shutil
 import os
 from src.model.ParsedDataItem import ParsedDataItem
+from .logger import logger
 
 
 def container_is_healthy(name_or_id: str):
@@ -106,3 +108,52 @@ def save_json(dist_path: str, data: any, cls: Type[json.JSONEncoder] = None):
     with open(dist_path, "w+") as file:
         json.dump(data, file, indent=2, cls=cls)
     file.close()
+    
+def create_colored_text_by_value(value: any) -> str:
+    color: str
+
+    if type(value) == bool:
+        color = "green" if value else "red"
+    elif type(value) == float or type(value) == int:
+        if value == 0:
+            color = "light_grey"
+        elif value > 0:
+            color = "red"
+            value = f"+{value}"
+        else:
+            color = "green"
+    else:
+        raise Exception("Invalid value type")
+
+    return colored(str(value),color, attrs=["bold"])
+
+# @TODO: make it generic
+def create_data_diff_terminal_table(before_data: dict[str, List[ParsedDataItem]],
+                                    after_data: dict[str, List[ParsedDataItem]],
+                                    row: List[str]) -> Table:
+
+    key_set = set(before_data.keys())
+
+    if before_data.keys() != after_data.keys():
+        logger.error("The before and after data must have the same keys. The report will only show the shared keys.")
+        key_set = [k for k in after_data.keys() if k in key_set]
+
+    output = Table()
+    output['Matrix'] = row
+
+    for key in key_set:
+        before, after, cur_output = before_data[key], after_data[key], []
+        
+        if len(before[0].value) != len(after[0].value):
+            raise Exception("The before and after data must have the same length")
+        
+        for i in range(len(before[0].value)):
+            diff = round(float(before[0].value[i]) - float(after[0].value[i]), 4)
+            out = (
+                f"{'{0:.4f}'.format(float(before[0].value[i]))}" +
+                f" ({create_colored_text_by_value(diff)})"
+            )
+            cur_output.append(out)
+    
+        output[key] = cur_output    
+    return output

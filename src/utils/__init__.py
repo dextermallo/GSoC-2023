@@ -24,5 +24,7 @@ __all__ = [
     "iso_time_str_to_unix_time",
     "UtilMapper",
     "save_json",
-    "create_directory"
+    "create_directory",
+    "create_data_diff_terminal_table",
+    "create_colored_text_by_value"
 ]

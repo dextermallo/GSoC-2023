@@ -76,7 +76,7 @@ class CAdvisorUtil(Util):
     def figure_report(self, args: ReportCommandArg):
         pass
 
-    def parse_data(self, file_path: str):
+    def parse_data(self, file_path: str)  -> dict[str, List[ParsedDataItem]]:
         logger.debug("start: parse_data()")
         res = {
             "cpu_total": [],

@@ -6,7 +6,6 @@ from typing import List
 from src.utils import logger
 from .Threshold import Threshold
 from src.type import ReportCommandArg, CollectCommandArg
-from termcolor import colored
 
 
 class _FTWTestInput:
@@ -128,21 +127,3 @@ class Util(ABC):
         with open(file_path, 'r') as f:
             raw_data = json.load(f)
             return [Threshold(**data) for data in raw_data["thresholds"]]
-
-    def _create_colored_text_by_value(self, value: any) -> str:
-        color: str
-
-        if type(value) == bool:
-            color = "green" if value else "red"
-        elif type(value) == float or type(value) == int:
-            if value == 0:
-                color = "light_grey"
-            elif value > 0:
-                color = "red"
-                value = f"+{value}"
-            else:
-                color = "green"
-        else:
-            raise Exception("Invalid value type")
-
-        return colored(str(value),color, attrs=["bold"])

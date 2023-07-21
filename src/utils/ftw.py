@@ -2,7 +2,7 @@ import subprocess
 import os
 import json
 from typing import List
-from src.utils import logger, color_text
+from src.utils import logger, color_text, create_colored_text_by_value
 from src.model.Util import Util, Threshold
 from src.model.ParsedDataItem import ParsedDataItem
 from src.type import CollectCommandArg, State, ReportCommandArg
@@ -44,10 +44,10 @@ class FTWUtil(Util):
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
         after_data = self.parse_data(f"{args.raw_output}/{State.after.name}_{self.raw_filename}")
 
-        run_changes = self._create_colored_text_by_value(before_data["run"].value - after_data["run"].value)
-        success_changes = self._create_colored_text_by_value(len(before_data["success"]) - len(after_data["success"]))
-        failed_changes = self._create_colored_text_by_value(len(before_data["failed"]) - len(after_data["failed"]))
-        total_time_changes = self._create_colored_text_by_value(before_data["totalTime"].value - after_data["totalTime"].value)
+        run_changes = create_colored_text_by_value(before_data["run"].value - after_data["run"].value)
+        success_changes = create_colored_text_by_value(len(before_data["success"]) - len(after_data["success"]))
+        failed_changes = create_colored_text_by_value(len(before_data["failed"]) - len(after_data["failed"]))
+        total_time_changes = create_colored_text_by_value(before_data["totalTime"].value - after_data["totalTime"].value)
         
         # generate report
         report = REPORT_PLAIN_TEXT_FORMAT.format(
@@ -82,7 +82,7 @@ class FTWUtil(Util):
     def figure_report(self, args: ReportCommandArg):
         pass
 
-    def parse_data(self, file_path: str) -> dict:
+    def parse_data(self, file_path: str) -> dict[str, List[ParsedDataItem]]:
         logger.debug("start: parse_data()")
         # read the raw data from the file
         res = {}

@@ -1,8 +1,11 @@
 import subprocess
 import os
-from src.utils import logger
+import csv
+from typing import List
+from src.utils import logger, create_data_diff_terminal_table
 from src.model.Util import Util
-from src.type import CollectCommandArg, State
+from src.model.ParsedDataItem import ParsedDataItem
+from src.type import CollectCommandArg, State, ReportCommandArg
 
 
 class LocustUtil(Util):
@@ -11,6 +14,12 @@ class LocustUtil(Util):
     __spawn_rate = 100
     __runtime = 5
     __test_case_per_file_limit = 100
+    __raw_file_name = "locust_stats.csv"
+    __data_schema = ['type', 'name', 'req_cnt', 'req_fail_cnt', 'median_resp_time', 'avg_resp_time',
+                    'min_resp_time', 'max_resp_time', 'avg_content_size', 'req/sec', 'fail/sec', 
+                    'p50', 'p66', 'p75', 'p80', 'p90', 'p95', 'p98', 'p99', 'p99.9', 'p99.99', 'p100'
+                    ]
+
 
     def collect(self, args: CollectCommandArg, state: State = None):    
         self.__exec_filename =os.path.join(args.tmp_dir, self.__exec_filename)
@@ -31,8 +40,10 @@ class LocustUtil(Util):
 
         _ = subprocess.run(command, shell=True, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
-    def text_report(self):
-        pass
+    def text_report(self, args: ReportCommandArg):
+        before_data = self.__parse_data(os.path.join(f"{args.raw_output}/{State.before.name}_{self.__raw_file_name}"))
+        after_data = self.__parse_data(os.path.join(f"{args.raw_output}/{State.after.name}_{self.__raw_file_name}"))
+        print(create_data_diff_terminal_table(before_data, after_data, self.__data_schema[2:]))
 
     def figure_report(self):
         pass
@@ -89,3 +100,17 @@ class LocustUtil(Util):
         
         with open(self.__exec_filename, "w") as file:
             file.write(template)
+            
+    def __parse_data(self, file_path: str)  -> dict[str, List[ParsedDataItem]]:
+        res: dict[str, List[ParsedDataItem]] = {
+            
+        }
+
+        with open(file_path, 'r') as f:
+            reader = csv.reader(f)
+            data = list(reader)
+
+            for i in range(1, len(data)):
+                req_type = "Aggregated" if i == len(data) - 1 else data[i][0]
+                res[req_type] = [ParsedDataItem(req_type, data[i][2:])]
+        return res

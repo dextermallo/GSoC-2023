@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "asciichart",
         "autouse",
         "CADVISOR",
         "diskio",
@@ -9,6 +10,7 @@
         "hspace",
         "levelname",
         "matplotlib",
+        "modsec",
         "OWASP",
         "pyplot",
         "termcolor",
