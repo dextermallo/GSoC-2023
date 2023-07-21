@@ -5,7 +5,7 @@ from typing import List
 from src.utils import logger, color_text
 from src.model.Util import Util, Threshold
 from src.model.ParsedDataItem import ParsedDataItem
-from src.type import CollectCommandArg, State, ReportCommandArg, ReportFormat
+from src.type import CollectCommandArg, State, ReportCommandArg
 
 
 REPORT_PLAIN_TEXT_FORMAT: str = (

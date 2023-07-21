@@ -100,7 +100,7 @@ def init_docker_compose_file(arg: CollectCommandArg, state: State):
 def runner(args: CollectCommandArg, changedRules: List[ChangedRule], state: State):
     # start service with docker-compose
     cmd = f"docker-compose -f ./tests/docker-compose-{state.name}.yml up -d {args.modsec_version}"
-    subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     _ = subprocess.check_output(cmd, shell=True).decode()
 
     # check it's up and running
@@ -117,7 +117,7 @@ def runner(args: CollectCommandArg, changedRules: List[ChangedRule], state: Stat
     docker-compose -f ./tests/docker-compose-{state.name}.yml stop &&
     docker-compose -f ./tests/docker-compose-{state.name}.yml down
     """
-    subprocess.run(cmd, shell=True, stderr=subprocess.PIPE)
+    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     _ = subprocess.check_output(cmd, shell=True).decode()
 
 def waf_server_is_up(waf_endpoint: str) -> bool:
