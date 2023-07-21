@@ -51,14 +51,16 @@ class CAdvisorUtil(Util):
         save_json(f"{args.raw_output}/{state.name}_{self.raw_filename}", data_list)
         self.__stop_cadvisor()
     
-    def report(self, args: ReportCommandArg):
-        logger.debug("start: report()")
-        
+    def text_report(self, args: ReportCommandArg):
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
         after_data = self.parse_data(f"{args.raw_output}/{State.after.name}_{self.raw_filename}")
         
         for matrix in ["cpu_total", "cpu_user", "cpu_system", "memory_usage", "memory_cache"]:
             print(create_time_series_terminal_plot(matrix, before_data[matrix], after_data[matrix]))
+
+    
+    def figure_report(self, args: ReportCommandArg):
+        pass
 
     def parse_data(self, file_path: str):
         logger.debug("start: parse_data()")

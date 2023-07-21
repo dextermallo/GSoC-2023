@@ -1,7 +1,7 @@
 import argparse
 import sys
 import os
-from src.type import ReportCommandArg
+from src.type import ReportCommandArg, ReportFormat
 from src.utils import UtilMapper
 
 
@@ -38,4 +38,11 @@ def main():
     
     # build the report
     for util in args.utils:
-        UtilMapper[util]().report(args)
+        if args.format == ReportFormat.text:
+            UtilMapper[util]().text_report(args)
+
+        elif args.format == ReportFormat.img:
+            UtilMapper[util]().figure_report(args)
+        
+        else:
+            raise Exception("--format support text or img")

@@ -38,7 +38,10 @@ class LocustUtil(Util):
 
         _ = subprocess.run(command, shell=True, check=False)
     
-    def report(self):
+    def text_report(self):
+        pass
+
+    def figure_report(self):
         pass
 
     # currently, we cannot detect whether the website should block (e.g., 405) or not,

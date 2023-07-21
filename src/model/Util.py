@@ -60,7 +60,7 @@ class Util(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def report(self, args: ReportCommandArg):
+    def text_report(self, args: ReportCommandArg):
         """_summary_
         save_raw_data() is a method for saving raw data to a file.
         It follows the func read_data() and is used to save the data, and it 
@@ -69,6 +69,10 @@ class Util(ABC):
         Raises:
             NotImplementedError: the method is not implemented
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def figure_report(self, args: ReportCommandArg):
         raise NotImplementedError
        
     def _parse_ftw_test_file(self, file_path: str, case_limit: int) -> List[_FTWTestSchema]:

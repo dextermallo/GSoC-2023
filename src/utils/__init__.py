@@ -6,7 +6,7 @@ from .locust import *
 from src.type import UtilType
 
 
-UtilMapper: dict = {
+UtilMapper: dict[str, Util] = {
     UtilType.ftw.name: FTWUtil,
     UtilType.cAdvisor.name: CAdvisorUtil,
     UtilType.locust.name: LocustUtil
