@@ -6,7 +6,7 @@ import json
 from src.model.IUtil import IUtil
 from src.model.ParsedDataItem import ParsedDataItem
 from src.type import CollectCommandArg, State, ReportCommandArg
-from .fn import container_is_healthy, create_time_series__terminal_plot
+from .fn import container_is_healthy, create_time_series_terminal_plot
 from .logger import logger
 
 
@@ -57,11 +57,9 @@ class CAdvisorUtil(IUtil):
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
         after_data = self.parse_data(f"{args.raw_output}/{State.after.name}_{self.raw_filename}")
         
-        create_time_series__terminal_plot(before_data["cpu_total"], after_data["cpu_total"], self.get_terminal_column())
-        
-            
-            
-        
+        for matrix in ["cpu_total", "cpu_user", "cpu_system", "memory_usage", "memory_cache"]:
+            print(create_time_series_terminal_plot(matrix, before_data[matrix], after_data[matrix]))
+
     def parse_data(self, file_path: str):
         logger.debug("start: parse_data()")
         res = {
@@ -83,7 +81,6 @@ class CAdvisorUtil(IUtil):
                 res["memory_cache"].append(ParsedDataItem(data["timestamp"], data["memory"]["cache"]))
             
         return res
-        
 
     def fetch_data(self, data_list: list, timestamp_set: set, url: str):
         try:

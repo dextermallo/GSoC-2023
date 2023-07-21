@@ -20,7 +20,7 @@ __all__ = [
     "container_is_healthy",
     "color_text",
     "get_terminal_column",
-    "create_time_series__terminal_plot",
+    "create_time_series_terminal_plot",
     "iso_time_str_to_unix_time",
     "UtilMapper"
 ]
