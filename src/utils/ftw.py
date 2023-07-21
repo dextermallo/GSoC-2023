@@ -3,7 +3,7 @@ import os
 import json
 from typing import List
 from src.utils import logger, color_text
-from src.model.IUtil import IUtil, Threshold
+from src.model.Util import Util, Threshold
 from src.model.ParsedDataItem import ParsedDataItem
 from src.type import CollectCommandArg, State, ReportCommandArg, ReportFormat
 
@@ -17,7 +17,7 @@ REPORT_PLAIN_TEXT_FORMAT: str = (
     "Total Time: {before_total_time} -> {after_total_time} ({total_time_changes})"
 )
 
-class FTWUtil(IUtil):
+class FTWUtil(Util):
     """_summary_
     FTWCollector is a class for collecting data from go-ftw, it utilizes the go-ftw
     for calling the testcases and parsing the data.
@@ -35,8 +35,6 @@ class FTWUtil(IUtil):
     raw_filename: str = "ftw.json"
 
     def collect(self, args: CollectCommandArg, state: State = None):
-        logger.debug("start: read_data()")
-
         # create the directory if not exist, and use go-ftw to run the test
         command = f'go-ftw run -d {args.test_cases_dir} -o json > {args.raw_output}/{state.name}_{self.raw_filename}'
         _ = subprocess.run(command, shell=True, check=False)

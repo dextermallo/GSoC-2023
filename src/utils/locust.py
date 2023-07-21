@@ -1,11 +1,11 @@
 import subprocess
 import os
 from src.utils import logger
-from src.model.IUtil import IUtil
+from src.model.Util import Util
 from src.type import CollectCommandArg, State
 
 
-class LocustUtil(IUtil):
+class LocustUtil(Util):
     """_summary_
     @TODO: documentation
     Args:

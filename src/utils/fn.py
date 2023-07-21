@@ -2,8 +2,10 @@ import docker
 import asciichartpy as asciichart
 import dateutil.parser as date_parser
 from termcolor import colored
-from typing import List
+from typing import Type, List
+import json
 import shutil
+import os
 from src.model.ParsedDataItem import ParsedDataItem
 
 
@@ -12,9 +14,6 @@ def container_is_healthy(name_or_id: str):
 
 def color_text(text: str, color: str, bold: bool = False):
     return colored(text, color, attrs=[] if not bold else ["bold"])
-
-def get_terminal_column() -> tuple[int, int]:
-    return 
 
 def create_time_series_terminal_plot(
     title: str,
@@ -71,3 +70,39 @@ def create_time_series_terminal_plot(
 
 def iso_time_str_to_unix_time(iso_time_str: str) -> float:
     return date_parser.parse(iso_time_str).timestamp()
+
+def create_directory(dist_path: str):
+    os.makedirs(os.path.dirname(dist_path), exist_ok=True)
+    
+def save_file(dist_path: str, data: str):
+    """_summary_
+
+    Args:
+        dist_path (str): _description_
+        data (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    os.makedirs(os.path.dirname(dist_path), exist_ok=True)
+    with open(dist_path, "w+") as file:
+        file.write(data)
+    file.close()
+
+def save_json(dist_path: str, data: any, cls: Type[json.JSONEncoder] = None):
+    """_summary_
+
+    Args:
+        dist_path (str): _description_
+        data (any): _description_
+        cls (Type[json.JSONEncoder], optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+
+    os.makedirs(os.path.dirname(dist_path), exist_ok=True)
+    with open(dist_path, "w+") as file:
+        json.dump(data, file, indent=2, cls=cls)
+    file.close()

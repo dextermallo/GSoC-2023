@@ -22,5 +22,7 @@ __all__ = [
     "get_terminal_column",
     "create_time_series_terminal_plot",
     "iso_time_str_to_unix_time",
-    "UtilMapper"
+    "UtilMapper",
+    "save_json",
+    "create_directory"
 ]

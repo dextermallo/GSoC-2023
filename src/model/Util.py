@@ -2,7 +2,7 @@ import yaml
 import os
 import json
 from abc import ABC, abstractmethod
-from typing import Type, List
+from typing import List
 from src.utils import logger
 from .Threshold import Threshold
 from src.type import ReportCommandArg, CollectCommandArg
@@ -10,9 +10,6 @@ from termcolor import colored
 
 
 class _FTWTestInput:
-    """_summary_
-    @TODO: documentation
-    """
     method: str = "GET"
     port: int = 80
     headers: dict = {}
@@ -31,9 +28,6 @@ class _FTWTestInput:
             self.method = "GET"
 
 class _FTWTestSchema:
-    """_summary_
-    @TODO: documentation
-    """
     test_title: str
     stages: List[_FTWTestInput]
     
@@ -41,10 +35,10 @@ class _FTWTestSchema:
         self.test_title = test_title
         self.stages = stages
 
-class IUtil(ABC):
+class Util(ABC):
     """_summary_
-    IDataCollector is an interface for data collector,
-    tt is used to read data from a source and store it in a database.
+    Util is an abstract class for Utils,
+    it is used to read data from a source and store it in a database.
     extend this class to implement your own data collector.
     
     Generally, a collector perform the following steps in linear order:
@@ -76,95 +70,9 @@ class IUtil(ABC):
             NotImplementedError: the method is not implemented
         """
         raise NotImplementedError
-
-    def _save_json_file(self, dist_path: str, data: any, cls: Type[json.JSONEncoder] = None):
-        """_summary_
-
-        Args:
-            dist_path (str): _description_
-            data (any): _description_
-            cls (Type[json.JSONEncoder], optional): _description_. Defaults to None.
-
-        Returns:
-            _type_: _description_
-        """
-        
-        
-        logger.debug('start: __save_json_file()')
-
-        try:
-            # create directory if not exist
-            os.makedirs(os.path.dirname(dist_path), exist_ok=True)
-            with open(dist_path, "w+") as file:
-                json.dump(data, file, indent=2, cls=cls)
-            file.close()
-        except Exception as e:
-            logger.error(e)
-            return False
-
-    def _save_file(self, dist_path: str, data: str):
-        """_summary_
-
-        Args:
-            dist_path (str): _description_
-            data (str): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        logger.debug('start: _save_file()')
-
-        try:
-            os.makedirs(os.path.dirname(dist_path), exist_ok=True)
-            with open(dist_path, "w+") as file:
-                file.write(data)
-            file.close()
-        except Exception as e:
-            logger.error(e)
-            return False
-
-    def _create_directory(self, dist_path: str):
-        """_summary_
-        @TODO: documentation
-        Args:
-            dist_path (str): _description_
-        """
-        os.makedirs(os.path.dirname(dist_path), exist_ok=True)
        
-    def _retrieve_rule_test_file_by_id(self, file_path: str, rule_id: str) -> List[_FTWTestSchema]:
-        """_summary_
-        @TODO: documentation
-        Args:
-            rule_id (str): _description_
-
-        Raises:
-            Exception: _description_
-
-        Returns:
-            List[_FTWTestSchema]: _description_
-        """
-        logger.debug('start: _retrieve_rule_test_file_by_id()')
-
-        if file_path is None:
-            raise Exception("file_path is None")
-        
-        matched = []
-        
-        # find filename which match the rule id
-        for root, _, files in os.walk(file_path):
-            for file_name in files:
-                if rule_id in file_name:
-                    matched.append(os.path.join(root, file_name))
-
-        data: List[_FTWTestSchema] = []
-
-        for i in matched:
-            data += self.parse_go_ftw_yaml(i)
-
-        return data
-    
     def _parse_ftw_test_file(self, file_path: str, case_limit: int) -> List[_FTWTestSchema]:
-        logger.debug('start: _retrieve_rule_test_file_by_id()')
+        logger.debug('start: _parse_ftw_test_file()')
 
         if file_path is None:
             raise Exception("file_path is None")
@@ -216,7 +124,6 @@ class IUtil(ABC):
         with open(file_path, 'r') as f:
             raw_data = json.load(f)
             return [Threshold(**data) for data in raw_data["thresholds"]]
-
 
     def _create_colored_text_by_value(self, value: any) -> str:
         color: str

@@ -3,14 +3,14 @@ import requests
 import time
 import subprocess
 import json
-from src.model.IUtil import IUtil
+from src.model.Util import Util
 from src.model.ParsedDataItem import ParsedDataItem
 from src.type import CollectCommandArg, State, ReportCommandArg
-from .fn import container_is_healthy, create_time_series_terminal_plot
+from .fn import container_is_healthy, create_time_series_terminal_plot, save_json
 from .logger import logger
 
 
-class CAdvisorUtil(IUtil):
+class CAdvisorUtil(Util):
     """_summary_
     CAdvisorCollector is a class for collecting data from cAdvisor API.
 
@@ -48,7 +48,7 @@ class CAdvisorUtil(IUtil):
             time.sleep(15)
         
         self.fetch_data(data_list, timestamp_set, url)
-        self._save_json_file(f"{args.raw_output}/{state.name}_{self.raw_filename}", data_list)
+        save_json(f"{args.raw_output}/{state.name}_{self.raw_filename}", data_list)
         self.__stop_cadvisor()
     
     def report(self, args: ReportCommandArg):
