@@ -205,7 +205,7 @@
 
 > Jul 20, 2023
 >
-> Thread: N/A
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1689861012777359
 
 1. Progress
 
@@ -217,7 +217,25 @@
 
 2. Next Actions
 
-- [ ] Discuss/Draft 2nd phase objective/goals (Cont.)
-- [ ] Bug/Changes from previous comments.
-- [ ] Create reports for cAdvisor/locust.
-- [ ] Add threshold for cAdvisor/locust.
+- Discuss/Draft 2nd phase objective/goals (Cont.)
+- Bug/Changes from previous comments.
+- Create reports for cAdvisor/locust.
+- Add threshold for cAdvisor/locust
+
+# Meeting 9
+
+> Jul 27, 2023
+>
+> Thread: N/A
+
+1. Progress
+
+- [ ] Discuss/Draft 2nd phase objective/goals: WIP
+- [x] Bug/Changes from previous comments.
+- [x] Create reports for cAdvisor/locust.
+- [x] Add threshold for cAdvisor/locust: locust may not be suitable for setting up thresholds since the number of requests is not consistent.
+
+2. Next Actions
+- Update test cases
+- Integrate into GitHub Action
+- Fine-tune output/blocking for pipelines

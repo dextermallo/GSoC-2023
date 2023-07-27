@@ -1,5 +1,5 @@
 {
-    "util_name": "ftw",
+    "util_name": "cAdvisor",
     "threshold_version": "0.0.1",
     "thresholds": [
         {

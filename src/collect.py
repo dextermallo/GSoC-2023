@@ -92,10 +92,13 @@ def init_tmp_file(arg: CollectCommandArg, changedRules: List[ChangedRule]):
 
 def init_docker_compose_file(arg: CollectCommandArg, state: State):
     shutil.copyfile("./tests/docker-compose.yml", f"./tests/docker-compose-{state.name}.yml")
-    processed_path = (arg.before_rules_dir if state == State.before else arg.after_rules_dir).replace("/", "\\/")    
+    processed_path = (arg.before_rules_dir if state == State.before else arg.after_rules_dir).replace("/", "\\/")
     cmd = f"""sed -i -e "s/- ..\/rules/- ..\/{processed_path}/g" .\/tests\/docker-compose-{state.name}.yml"""
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     _ = subprocess.check_output(cmd, shell=True).decode()
+
+    # @TODO: this is a temporary fix for extra files created from sed
+    os.remove(f"./tests/docker-compose-{state.name}.yml-e")
 
 def runner(args: CollectCommandArg, changedRules: List[ChangedRule], state: State):
     # start service with docker-compose
