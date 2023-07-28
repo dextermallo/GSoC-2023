@@ -75,8 +75,6 @@ class Util(ABC):
         raise NotImplementedError
        
     def _parse_ftw_test_file(self, file_path: str, case_limit: int) -> List[_FTWTestSchema]:
-        logger.debug('start: _parse_ftw_test_file()')
-
         if file_path is None:
             raise Exception("file_path is None")
         

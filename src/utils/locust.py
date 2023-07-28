@@ -23,8 +23,7 @@ class LocustUtil(Util):
 
     def collect(self, args: CollectCommandArg, state: State = None):    
         self.__exec_filename =os.path.join(args.tmp_dir, self.__exec_filename)
-        logger.debug("start: collect()")
-        
+
         # init template
         self.__create_template(args)
 

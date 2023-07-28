@@ -43,8 +43,6 @@ class FTWUtil(Util):
         _ = subprocess.run(command, shell=True, check=False, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
     
     def text_report(self, args: ReportCommandArg):
-        logger.debug("start: report()")
-
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
         after_data = self.parse_data(f"{args.raw_output}/{State.after.name}_{self.raw_filename}")
 
@@ -84,7 +82,6 @@ class FTWUtil(Util):
         pass
 
     def parse_data(self, file_path: str) -> dict[str, List[ParsedDataItem]]:
-        logger.debug("start: parse_data()")
         # read the raw data from the file
         res = {}
         

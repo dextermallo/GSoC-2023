@@ -69,8 +69,7 @@ def init_tmp_file(arg: CollectCommandArg, changedRules: List[ChangedRule]):
     for changedRule in changedRules:
         cmd = f"git show {arg.before}:rules/{changedRule.req}.conf > {arg.before_rules_dir}/{changedRule.req}.conf"
         subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output = subprocess.check_output(cmd, shell=True).decode()
-    
+
     # copy after-rules
     for changedRule in changedRules:
         cmd: str
@@ -95,7 +94,6 @@ def init_docker_compose_file(arg: CollectCommandArg, state: State):
     processed_path = (arg.before_rules_dir if state == State.before else arg.after_rules_dir).replace("/", "\\/")
     cmd = f"""sed -i -e "s/- ..\/rules/- ..\/{processed_path}/g" .\/tests\/docker-compose-{state.name}.yml"""
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    _ = subprocess.check_output(cmd, shell=True).decode()
 
     # @TODO: this is a temporary fix for extra files created from sed
     os.remove(f"./tests/docker-compose-{state.name}.yml-e")
@@ -103,16 +101,17 @@ def init_docker_compose_file(arg: CollectCommandArg, state: State):
 def runner(args: CollectCommandArg, changedRules: List[ChangedRule], state: State):
     # start service with docker-compose
     cmd = f"docker-compose -f ./tests/docker-compose-{state.name}.yml up -d {args.modsec_version}"
-    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    _ = subprocess.check_output(cmd, shell=True).decode()
+
+    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, capture_output=False)
 
     # check it's up and running
     if not waf_server_is_up(args.waf_endpoint):
-        raise Exception("WAF server is not up")
+        logger.critical("WAF server is not up")
+        exit(1)
 
     # run test cases
     for util in args.utils:
-        logger.info(f"Running {util}...")
+        logger.info(f"Running Test case: {args.test_name} using {util}, State = {state.name}")
         UtilMapper.get(util)().collect(args, state)
     
     # stop service with docker-compose
@@ -120,8 +119,7 @@ def runner(args: CollectCommandArg, changedRules: List[ChangedRule], state: Stat
     docker-compose -f ./tests/docker-compose-{state.name}.yml stop &&
     docker-compose -f ./tests/docker-compose-{state.name}.yml down
     """
-    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    _ = subprocess.check_output(cmd, shell=True).decode()
+    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, capture_output=False)
 
 def waf_server_is_up(waf_endpoint: str) -> bool:
     timeout, retry = 5, 0

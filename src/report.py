@@ -2,7 +2,7 @@ import argparse
 import sys
 import os
 from src.type import ReportCommandArg, ReportFormat
-from src.utils import UtilMapper
+from src.utils import UtilMapper, logger
 
 
 def get_summary_command_arg(*args) -> ReportCommandArg:
@@ -43,6 +43,7 @@ def main():
 
         elif args.format == ReportFormat.img:
             UtilMapper[util]().figure_report(args)
-        
+
         else:
-            raise Exception("--format support text or img")
+            logger.critical("--format support text or img")
+            exit(1)

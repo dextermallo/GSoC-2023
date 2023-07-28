@@ -9,37 +9,30 @@ from src.model.Util import Util
 from src.model.Threshold import Threshold
 from src.model.ParsedDataItem import ParsedDataItem
 from src.type import CollectCommandArg, State, ReportCommandArg
-from .fn import container_is_healthy, create_time_series_terminal_plot, save_json, color_text
+from .fn import container_is_healthy, create_time_series_terminal_plot, save_json
 from .logger import logger
 
 
 class CAdvisorUtil(Util):
-    """_summary_
-    CAdvisorCollector is a class for collecting data from cAdvisor API.
-
-    Usage:
-    ```sh
-    # run the following command, and the data will be stored in $DATA_PATH/<group_id>,
-    # once the data is collected, terminate the process with Ctrl+C, and the data will be parsed.
-    $ poetry run cadvisor-collector <group_id>
-    ```
+    """
+    CAdvisorUtil is a class for collecting and analyzing data from cAdvisor API.
     """
     
     # @TODO: add to variables
     __waf_container_name: str = "modsec2-apache"
-
-    args: CollectCommandArg
-    state: State
     raw_filename: str = "cAdvisor.json"
     
     def collect(self, args: CollectCommandArg, state: State = None):
-        logger.debug("start: collect()")
-        
         # start cAdvisor container
         self.__start_cadvisor()
         
-        # start go-ftw
-        proc_ftw_data_collector = subprocess.Popen([f"go-ftw run -d {args.test_cases_dir} -o json"],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # start go-ftw in parallel
+        proc_ftw_data_collector = subprocess.Popen(
+            [f"go-ftw run -d {args.test_cases_dir} -o json"],
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+            )
 
         data_list, timestamp_set = [], set()
         url = f"http://127.0.0.1:8080/api/v1.1/subcontainers/docker/{self.__get_waf_container_id()}"
@@ -48,7 +41,7 @@ class CAdvisorUtil(Util):
         # so the data requires to be filtered out duplicates
         while proc_ftw_data_collector.poll() is not None:
             self.fetch_data(data_list, timestamp_set, url)
-            time.sleep(15)
+            time.sleep(10)
         
         self.fetch_data(data_list, timestamp_set, url)
         save_json(f"{args.raw_output}/{state.name}_{self.raw_filename}", data_list)
@@ -73,14 +66,8 @@ class CAdvisorUtil(Util):
         pass
 
     def parse_data(self, file_path: str)  -> dict[str, List[ParsedDataItem]]:
-        res = {
-            "cpu_total": [],
-            "cpu_user": [],
-            "cpu_system": [],
-            "memory_usage": [],
-            "memory_cache": []
-        }
-        
+        res = { "cpu_total": [], "cpu_user": [], "cpu_system": [], "memory_usage": [], "memory_cache": [] }
+
         with open(file_path, "r") as f:
             raw_data = json.load(f)
             
@@ -98,7 +85,7 @@ class CAdvisorUtil(Util):
             response = requests.post(url)
 
             if response.status_code != 200:
-                raise Exception("Response status code is not 200")
+                logger.error(f"Response status code is not 200: {response.status_code}")
 
             for stats in response.json()[0]["stats"]:
                 timestamp = stats["timestamp"]
@@ -108,26 +95,28 @@ class CAdvisorUtil(Util):
                 timestamp_set.add(timestamp)
                 data_list.append(stats)
 
-            logger.info(f"Data length: {len(data_list)}")
+            logger.info(f"Current data collected: {len(data_list)}")
         except Exception as e:
             logger.error(e)
+            exit(1)
 
     def __get_waf_container_id(self) -> str:
-        """_summary_
+        """
         __get_waf_container_id() gets the id of container which name is $__waf_container_name,
         the id is used for cAdvisor API.
 
         Returns:
             str: waf container id
         """
-        logger.debug("start: __get_waf_container_id()")
-        client = docker.from_env()
-        container = client.containers.get(self.__waf_container_name)
-        return container.id
+        try:    
+            client = docker.from_env()
+            container = client.containers.get(self.__waf_container_name)
+            return container.id
+        except Exception as e:
+            logger.error(e)
+            exit(1)
     
     def __start_cadvisor(self):
-        logger.info("start: __start_cadvisor()")
-
         cmd = """
         docker run \
         --volume=/:/rootfs:ro \
@@ -146,7 +135,6 @@ class CAdvisorUtil(Util):
         try:
             subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             logger.info("Waiting for cAdvisor to be up...")
-
             cnt = 0
             while not container_is_healthy("cadvisor") and cnt < 6:
                 time.sleep(10)

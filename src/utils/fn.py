@@ -73,25 +73,6 @@ def create_time_series_terminal_plot(
 def iso_time_str_to_unix_time(iso_time_str: str) -> float:
     return date_parser.parse(iso_time_str).timestamp()
 
-def create_directory(dist_path: str):
-    os.makedirs(os.path.dirname(dist_path), exist_ok=True)
-    
-def save_file(dist_path: str, data: str):
-    """_summary_
-
-    Args:
-        dist_path (str): _description_
-        data (str): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    os.makedirs(os.path.dirname(dist_path), exist_ok=True)
-    with open(dist_path, "w+") as file:
-        file.write(data)
-    file.close()
-
 def save_json(dist_path: str, data: any, cls: Type[json.JSONEncoder] = None):
     """_summary_
 
