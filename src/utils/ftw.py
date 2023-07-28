@@ -1,6 +1,7 @@
 import subprocess
 import os
 import json
+import time
 from typing import List
 from src.utils import logger, color_text, create_colored_text_by_value
 from src.model.Util import Util, Threshold
@@ -34,9 +35,12 @@ class FTWUtil(Util):
     raw_filename: str = "ftw.json"
 
     def collect(self, args: CollectCommandArg, state: State = None):
-        # create the directory if not exist, and use go-ftw to run the test
+
+        # go-ftw requires time to spin up, otherwise the I/O might be timeout
+        time.sleep(5)
+        
         command = f'go-ftw run -d {args.test_cases_dir} -o json > {args.raw_output}/{state.name}_{self.raw_filename}'
-        _ = subprocess.run(command, shell=True, check=False)
+        _ = subprocess.run(command, shell=True, check=False, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
     
     def text_report(self, args: ReportCommandArg):
         logger.debug("start: report()")
@@ -74,10 +78,7 @@ class FTWUtil(Util):
         thresholds: List[Threshold] = self._get_threshold(os.path.join(args.threshold_conf, "ftw.threshold.json"))
 
         for threshold in thresholds:
-            if not threshold.isPassed(before_data[threshold.metric_name], after_data[threshold.metric_name]):
-                print((f"Threshold: {threshold.threshold_name:24} {color_text('failed', 'red', True)}"))
-            else:    
-                print((f"Threshold: {threshold.threshold_name:24} {color_text('passed', 'green', True)}"))
+            threshold.inspect(before_data[threshold.metric_name], after_data[threshold.metric_name])
 
     def figure_report(self, args: ReportCommandArg):
         pass

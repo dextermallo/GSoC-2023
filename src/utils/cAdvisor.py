@@ -67,17 +67,12 @@ class CAdvisorUtil(Util):
         thresholds: List[Threshold] = self._get_threshold(os.path.join(args.threshold_conf, "cAdvisor.threshold.json"))
 
         for threshold in thresholds:
-            if not threshold.isPassed(before_data[threshold.metric_name], after_data[threshold.metric_name]):
-                print((f"Threshold: {threshold.threshold_name:24} {color_text('failed', 'red', True)}"))
-            else:    
-                print((f"Threshold: {threshold.threshold_name:24} {color_text('passed', 'green', True)}"))
+            threshold.inspect(before_data[threshold.metric_name], after_data[threshold.metric_name])
 
-    
     def figure_report(self, args: ReportCommandArg):
         pass
 
     def parse_data(self, file_path: str)  -> dict[str, List[ParsedDataItem]]:
-        logger.debug("start: parse_data()")
         res = {
             "cpu_total": [],
             "cpu_user": [],

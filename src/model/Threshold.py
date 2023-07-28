@@ -18,7 +18,7 @@ class _ComparisonMethod(Enum):
     ge = 5,
     le = 6,
 
-    # @TODO: currently, rate_fn only supports to compare with object before
+    # @TODO: currently rate_fn only supports to compare with object before
     ratioIsGt = 7
     ratioIsLt = 8
     ratioIsGe = 9
@@ -80,6 +80,12 @@ class Threshold:
         self.threshold = threshold
         self.include_labels = set(include_labels) if include_labels else None
         self.exclude_labels = set(exclude_labels) if exclude_labels else None
+
+    def inspect(self, before_data: List[ParsedDataItem], after_data: List[ParsedDataItem]):
+        if not self.isPassed(before_data, after_data):
+            print((f"Threshold: {self.threshold_name:24} {color_text('failed', 'red', True)}"))
+        else:
+            print((f"Threshold: {self.threshold_name:24} {color_text('passed', 'green', True)}"))
 
     def isPassed(self, before_data: List[ParsedDataItem], after_data: List[ParsedDataItem]) -> bool:
         if before_data is None or after_data is None:
