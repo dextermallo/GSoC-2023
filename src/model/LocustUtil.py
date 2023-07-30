@@ -2,10 +2,9 @@ import subprocess
 import os
 import csv
 from typing import List
-from src.utils import logger, create_data_diff_terminal_table
-from src.model.Util import Util
-from src.model.ParsedDataItem import ParsedDataItem
-from src.type import CollectCommandArg, State, ReportCommandArg
+
+from src.type import State
+from .Util import Util, ParsedDataItem, CollectCommandArg, ReportCommandArg
 
 
 class LocustUtil(Util):
@@ -42,7 +41,7 @@ class LocustUtil(Util):
     def text_report(self, args: ReportCommandArg):
         before_data = self.__parse_data(os.path.join(f"{args.raw_output}/{State.before.name}_{self.__raw_file_name}"))
         after_data = self.__parse_data(os.path.join(f"{args.raw_output}/{State.after.name}_{self.__raw_file_name}"))
-        print(create_data_diff_terminal_table(before_data, after_data, self.__data_schema[2:]))
+        print(self.create_data_diff_terminal_table(before_data, after_data, self.__data_schema[2:]))
 
     def figure_report(self):
         pass
@@ -101,9 +100,7 @@ class LocustUtil(Util):
             file.write(template)
             
     def __parse_data(self, file_path: str)  -> dict[str, List[ParsedDataItem]]:
-        res: dict[str, List[ParsedDataItem]] = {
-            
-        }
+        res: dict[str, List[ParsedDataItem]] = {}
 
         with open(file_path, 'r') as f:
             reader = csv.reader(f)

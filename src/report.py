@@ -1,8 +1,10 @@
 import argparse
 import sys
 import os
-from src.type import ReportCommandArg, ReportFormat
-from src.utils import UtilMapper, logger
+
+from src.model import ReportCommandArg, UtilMapper
+from src.type import ReportFormat
+from src.utils import logger
 
 
 def get_summary_command_arg(*args) -> ReportCommandArg:

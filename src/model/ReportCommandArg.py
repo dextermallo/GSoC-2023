@@ -1,9 +1,10 @@
 from typing import List
-from .UtilType import UtilType
-from .ReportFormat import ReportFormat
+
+from src.type import UtilType, ReportFormat
     
 
 class ReportCommandArg:
+    """@TODO: doc"""
     test_name: str
     utils: List[UtilType]
     output: str

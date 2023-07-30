@@ -1,23 +1,21 @@
-from typing import List
 import re
 import os
-from .UtilType import UtilType
+from typing import List, Optional
 
-    
+from src.type import UtilType
+
+
 class CollectCommandArg:
+    """@TODO: doc"""
     test_name: str
     utils: List[UtilType]
-    before: str
-    after: str
-    raw_output: str
-    output: str
-    waf_endpoint: str
-    
-    # static
-    # - tmp
-    #    | - before-rules
-    #    | - after-rules
-    #    | - test-cases
+    before: Optional[str]
+    after: Optional[str]
+    raw_output: Optional[str]
+    output: Optional[str]
+    waf_endpoint: Optional[str]
+
+    # Auto generated
     tmp_dir: str = './tmp'
     before_rules_dir: str
     after_rules_dir: str
@@ -28,15 +26,15 @@ class CollectCommandArg:
     
     def __init__(self,
                  test_name: str,
-                 utils: List[UtilType],
-                 before: str,
-                 after: str,
-                 raw_output: str,
-                 output: str,
-                 waf_endpoint: str
+                 utils: Optional[List[UtilType]],
+                 raw_output: Optional[str],
+                 output: Optional[str],
+                 before: Optional[str],
+                 after: Optional[str],
+                 waf_endpoint: Optional[str]
                  ):
         self.test_name = test_name
-        self.utils = utils
+        self.utils = utils if (utils is not None and len(utils)) else [util for util in UtilType]
         self.before = before if before else "HEAD"
         self.after = after if after else "."
         
@@ -54,7 +52,7 @@ class CollectCommandArg:
         self.before_rules_dir = os.path.join(self.tmp_dir, "before-rules")
         self.after_rules_dir = os.path.join(self.tmp_dir, "after-rules")
         self.test_cases_dir = os.path.join(self.tmp_dir, "test-cases")
-        
+ 
     def __isGitCommitHash(self, s: str) -> bool:
         finder = re.compile(r'[0-9a-f]+')
         return s == "HEAD" or (len(s) <= 40 and finder.fullmatch(s))
