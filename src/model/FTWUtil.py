@@ -40,11 +40,13 @@ class FTWUtil(Util):
 
         # @TODO: better wrapping for different mode
         ftw_util_path = './ftw' if args.mode == Mode.pipeline.name else 'go-ftw'
-        command = f'{ftw_util_path} run -d {args.test_cases_dir} -o json > {args.raw_output}/{state.name}_{self.raw_filename} || echo "case failed"'
-        print(command)
-        ctx = subprocess.run(command, shell=True, check=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        print(ctx.stdout)
-        print(ctx.returncode)
+        
+        output_file = f"{args.raw_output}/{state.name}_{self.raw_filename}"
+        command = f'{ftw_util_path} run -d {args.test_cases_dir} -o json'
+
+        f = open(output_file, "w")
+        ctx = subprocess.run(command, shell=True, check=False, stderr=subprocess.DEVNULL, stdout=f)
+        f.close()
     
     def text_report(self, args: ReportCommandArg):
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
