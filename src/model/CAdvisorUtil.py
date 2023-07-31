@@ -145,7 +145,7 @@ class CAdvisorUtil(Util):
             while not self.container_is_healthy("cadvisor") and cnt < 6:
                 time.sleep(10)
                 cnt += 1
-            time.sleep(30)
+            time.sleep(60)
         except Exception as e:
             logger.error(e)
             exit(1)
