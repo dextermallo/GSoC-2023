@@ -139,7 +139,7 @@ class CAdvisorUtil(Util):
             gcr.io/cadvisor/cadvisor:{self.__cAdvisor_container_version}
             """
             
-            output = subprocess.run(cmd, shell=True, stdout=subprocess.STDOUT, stderr=subprocess.STDOUT, check=True)
+            output = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
             print(output.stdout)
             print(output.stderr)
             logger.info("Waiting for cAdvisor to be up...")
