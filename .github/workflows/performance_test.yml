@@ -53,9 +53,6 @@ jobs:
         id: "performance_test_init"
         run: |
 
-          # inspection
-          virtualenv .env
-          source .venv/bin/activate
           poetry install
 
           BEFORE_COMMIT=${{ github.event.before }}
