@@ -45,12 +45,12 @@ class FTWUtil(Util):
         # command = f'({ftw_util_path} run -d "{args.test_cases_dir}" -o json > "{output_file}") || echo "some cases failed"'
         command = f'(ls ../ftw  > "{output_file}") || echo "some cases failed"'
         
-        proc1 = subprocess.Popen(['ls', '../ftw'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
+        proc1 = subprocess.Popen(['ls', '../ftw'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         stdout = proc1.communicate()[0]
         print(stdout)
         
-        proc2 = subprocess.Popen(['ls', '../ftw', f" > {output_file}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
-        stdout2 = proc1.communicate()[0]
+        proc2 = subprocess.Popen(['ls', '../ftw', f" > {output_file}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        stdout2 = proc2.communicate()[0]
         print(stdout2)
         
         # ctx = subprocess.run(command, shell=True, check=True, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
