@@ -39,7 +39,7 @@ class FTWUtil(Util):
         time.sleep(5)
 
         # @TODO: better wrapping for different mode
-        ftw_util_path = './ftw' if args.mode == Mode.pipeline.name else 'go-ftw'
+        ftw_util_path = '../ftw' if args.mode == Mode.pipeline.name else 'go-ftw'
         
         output_file = f"{args.raw_output}/{state.name}_{self.raw_filename}"
         command = f'({ftw_util_path} run -d "{args.test_cases_dir}" -o json > "{output_file}") || echo "some cases failed"'
