@@ -46,6 +46,11 @@ class FTWUtil(Util):
 
         f = open(output_file, "w")
         ctx = subprocess.run(command, shell=True, check=False, stderr=subprocess.DEVNULL, stdout=f)
+        print(ctx.stdout)
+        print(ctx.stderr)
+        print(ctx.returncode)
+        print(output_file)
+        print(command)
         f.close()
     
     def text_report(self, args: ReportCommandArg):
