@@ -61,7 +61,12 @@ def init(arg: CollectCommandArg):
 def get_changed_rules(arg: CollectCommandArg) -> List[_ChangedRule]:
     exec_cmd = f"git diff --name-only {arg.before} {arg.after} | grep -E \'rules/.*.conf$\'"
     
-    subprocess.run(exec_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    out = subprocess.run(exec_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    
+    if out.returncode != 0:
+        logger.info("No rule is changed")
+        exit(0)
+
     output = subprocess.check_output(exec_cmd, shell=True).decode()
         
     changedRules: List[_ChangedRule] = []
