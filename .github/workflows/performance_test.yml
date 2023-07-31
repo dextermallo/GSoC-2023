@@ -70,9 +70,9 @@ jobs:
 
           poetry run collect --test-name pipeline-test --before "$BEFORE_COMMIT" --after "$AFTER_COMMIT" --utils ftw --mode pipeline
 
-      # - name: "Display Text-based report"
-      #   run: |
-      #     poetry run report --test-name pipeline-test --utils ftw
+      - name: "Display Text-based report"
+        run: |
+          poetry run report --test-name pipeline-test --utils ftw
 
       - uses: actions/upload-artifact@v3
         with:
