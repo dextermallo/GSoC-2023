@@ -16,7 +16,7 @@ on:
       - '*/**'
 
 jobs:
-  performance:
+  performance_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -72,7 +72,9 @@ jobs:
 
       - name: "Display Text-based report"
         run: |
-          poetry run report --test-name pipeline-test --utils ftw
+
+          # output to summary
+          poetry run report --test-name pipeline-test --utils ftw >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/upload-artifact@v3
         with:
