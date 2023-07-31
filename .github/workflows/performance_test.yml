@@ -27,13 +27,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Install dependencies"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GO_FTW_VERSION: '0.4.8'
-        run: |
-          gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
-
       - name: "Setup Python"
         uses: actions/setup-python@v4
         with:
@@ -47,12 +40,12 @@ jobs:
           virtualenvs-in-project: false
           installer-parallel: true
 
-      # check changed files, clone the old rules in folder /old_rules
-      # the old rules are used to compare the new rules with the old ones
-      - name: "Clone changed rules and corresponding test cases"
-        id: "performance_test_init"
+      - name: "Install dependencies"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GO_FTW_VERSION: '0.4.8'
         run: |
-
+          gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
           git clone https://github.com/coreruleset/coreruleset
           mv ./coreruleset/plugins ./
           mv ./coreruleset/tests ./
@@ -61,12 +54,23 @@ jobs:
 
           poetry install
 
+      - name: "Collect raw data"
+        run: |
+
           BEFORE_COMMIT=${{ github.event.before }}
           AFTER_COMMIT=${{ github.event.after }}
 
           poetry run collect --test-name pipeline-test --before "$BEFORE_COMMIT" --after "$AFTER_COMMIT" --utils ftw
 
+      - name: "Display Text-based report"
+        run: |
+
+          BEFORE_COMMIT=${{ github.event.before }}
+          AFTER_COMMIT=${{ github.event.after }}
+
+          poetry run report --test-name pipeline-test --before "$BEFORE_COMMIT" --after "$AFTER_COMMIT" --utils ftw
+
       - uses: actions/upload-artifact@v3
         with:
-          name: output
-          path: output
+          name: data
+          path: data
