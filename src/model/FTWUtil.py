@@ -42,26 +42,15 @@ class FTWUtil(Util):
         ftw_util_path = '../ftw' if args.mode == Mode.pipeline.name else 'go-ftw'
         
         output_file = f"{args.raw_output}/{state.name}_{self.raw_filename}"
-        # command = f'({ftw_util_path} run -d "{args.test_cases_dir}" -o json > "{output_file}") || echo "some cases failed"'
-        command = f'(ls ../ftw  > "{output_file}") || echo "some cases failed"'
-        
-        proc1 = subprocess.Popen(['ls', '../ftw'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        stdout = proc1.communicate()[0]
-        print(stdout)
+        command = f'{ftw_util_path} run -d "{args.test_cases_dir}" -o json > "{output_file}"'
         
         f = open(output_file, "w")
-        proc2 = subprocess.Popen(['ls', '../ftw', f" > {output_file}"], stdout=f, stderr=subprocess.PIPE, shell=True)
-        stdout2 = proc2.communicate()[0]
-        print(stdout2)
+        proc = subprocess.Popen([command], stdout=f, stderr=subprocess.PIPE, shell=True)
+        if proc.returncode != 0:
+            # @TODO: handle errors from go-ftw
+            print(proc.stderr.read().decode())
         f.close()
-        
-        # ctx = subprocess.run(command, shell=True, check=True, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
-        # print(ctx.stdout)
-        # print(ctx.stderr)
-        # print(ctx.returncode)
-        # print(output_file)
-        # print(command)
-    
+
     def text_report(self, args: ReportCommandArg):
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
         after_data = self.parse_data(f"{args.raw_output}/{State.after.name}_{self.raw_filename}")
