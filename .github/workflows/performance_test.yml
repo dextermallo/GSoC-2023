@@ -45,13 +45,21 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GO_FTW_VERSION: '0.4.8'
         run: |
+
+          # install ftw
           gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
+
+          # fetch rules, tests, etc. form CRS
           git clone https://github.com/coreruleset/coreruleset
           mv ./coreruleset/plugins ./
           mv ./coreruleset/tests ./
           mv ./coreruleset/crs-setup.conf.example ./
           rm -rf coreruleset
 
+          # create ftw yaml file
+          cp .example.ftw.yaml .ftw.yaml
+
+          # init dependencies
           poetry install
 
       - name: "Collect raw data"
