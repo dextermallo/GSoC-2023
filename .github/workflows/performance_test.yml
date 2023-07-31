@@ -54,6 +54,12 @@ jobs:
         run: |
 
           # inspection
+
+          BEFORE_COMMIT=${{ github.event.before }}
+          AFTER_COMMIT=${{ github.event.after }}
+
+          poetry run collect --test-name pipeline-test --before $BEFORE_COMMIT --after $AFTER_COMMIT --utils ftw
+
           num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
           echo "num_changed_rules=$num_changed_rules" >> "$GITHUB_OUTPUT"
 
@@ -111,8 +117,6 @@ jobs:
 
           ./ftw check -d rules-changed-test
           $(./ftw run -d rules-changed-test > output/raw.after.txt) || echo "case fail"
-
-          python3 --version
 
         env:
           FTW_LOGFILE: './tests/logs/${{ matrix.modsec_version }}/error.log'
