@@ -44,12 +44,21 @@ class FTWUtil(Util):
         output_file = f"{args.raw_output}/{state.name}_{self.raw_filename}"
         # command = f'({ftw_util_path} run -d "{args.test_cases_dir}" -o json > "{output_file}") || echo "some cases failed"'
         command = f'(ls ../ftw  > "{output_file}") || echo "some cases failed"'
-        ctx = subprocess.run(command, shell=True, check=True, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
-        print(ctx.stdout)
-        print(ctx.stderr)
-        print(ctx.returncode)
-        print(output_file)
-        print(command)
+        
+        proc1 = subprocess.Popen(['ls', '../ftw'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
+        stdout = proc1.communicate()[0]
+        print(stdout)
+        
+        proc2 = subprocess.Popen(['ls', '../ftw', f" > {output_file}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
+        stdout2 = proc1.communicate()[0]
+        print(stdout2)
+        
+        # ctx = subprocess.run(command, shell=True, check=True, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
+        # print(ctx.stdout)
+        # print(ctx.stderr)
+        # print(ctx.returncode)
+        # print(output_file)
+        # print(command)
     
     def text_report(self, args: ReportCommandArg):
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
