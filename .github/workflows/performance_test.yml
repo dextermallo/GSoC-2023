@@ -7,11 +7,13 @@ on:
       - 'rules/**'
       - 'tests/**'
       - '.github/**'
+      - '*/**'
   pull_request:
     paths:
       - 'rules/**'
       - 'tests/**'
       - '.github/**'
+      - '*/**'
 
 jobs:
   performance:
@@ -32,16 +34,24 @@ jobs:
         run: |
           gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
 
+      - name: "Setup Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9.6
+
+      - name: "Install Poetry"
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.5.1
+          virtualenvs-create: true
+          virtualenvs-in-project: false
+          installer-parallel: true
+
       # check changed files, clone the old rules in folder /old_rules
       # the old rules are used to compare the new rules with the old ones
       - name: "Clone changed rules and corresponding test cases"
         id: "performance_test_init"
-        run: |    
-
-          # test for ebpf
-          which dcsnoop.bt
-          which dcsnoop
-          which bpftrace
+        run: |
 
           # inspection
           num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
