@@ -110,7 +110,10 @@ def init_docker_compose_file(arg: CollectCommandArg, state: State):
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # @TODO: this is a temporary fix for extra files created from sed
-    os.remove(f"./tests/docker-compose-{state.name}.yml-e")
+    try:
+        os.remove(f"./tests/docker-compose-{state.name}.yml-e")
+    except OSError:
+        pass
 
 def runner(args: CollectCommandArg, state: State):
     # start service with docker-compose
