@@ -74,7 +74,7 @@ jobs:
         run: |
 
           # output to summary
-          poetry run report --test-name pipeline-test --utils ftw >> $GITHUB_STEP_SUMMARY
+          poetry run report --test-name pipeline-test --utils ftw --threshold-conf './config' >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/upload-artifact@v3
         with:
