@@ -139,7 +139,9 @@ class CAdvisorUtil(Util):
             gcr.io/cadvisor/cadvisor:{self.__cAdvisor_container_version}
             """
             
-            subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            output = subprocess.run(cmd, shell=True, stdout=subprocess.STDOUT, stderr=subprocess.STDOUT, check=True)
+            print(output.stdout)
+            print(output.stderr)
             logger.info("Waiting for cAdvisor to be up...")
             cnt = 0
             while not self.container_is_healthy("cadvisor") and cnt < 6:
