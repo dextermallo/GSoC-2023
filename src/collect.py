@@ -54,9 +54,6 @@ def init(arg: CollectCommandArg):
     os.makedirs(arg.tmp_dir, exist_ok=True)
     
     # create folder for test case
-    os.makedirs(arg.raw_output, exist_ok=True)
-    os.makedirs(arg.output, exist_ok=True)
-    os.makedirs(arg.tmp_dir, exist_ok=True)
     os.makedirs(arg.before_rules_dir, exist_ok=True)
     os.makedirs(arg.after_rules_dir, exist_ok=True)
     os.makedirs(arg.test_cases_dir, exist_ok=True)
@@ -155,10 +152,6 @@ def waf_server_is_up(waf_endpoint: str) -> bool:
             return True
 
     return False
-
-def cleanup():
-    # remove if necessary
-    pass
     
 def main():
     # check the inputs
