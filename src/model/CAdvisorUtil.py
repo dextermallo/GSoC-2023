@@ -8,7 +8,7 @@ import os
 from typing import Type, List
 
 from .Util import Util, ParsedDataItem, CollectCommandArg, ReportCommandArg
-from src.type import State
+from src.type import State, Mode
 from src.utils import logger
 
 
@@ -27,9 +27,12 @@ class CAdvisorUtil(Util):
         # start cAdvisor container
         self.__start_cadvisor()
         
+        # @TODO: better wrapping for different mode
+        ftw_util_path = './ftw' if args.mode == Mode.pipeline.name else 'go-ftw'
+        
         # start go-ftw in parallel
         proc_ftw_data_collector = subprocess.Popen(
-            [f"go-ftw run -d {args.test_cases_dir} -o json"],
+            [f"{ftw_util_path} run -d {args.test_cases_dir} -o json"],
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
