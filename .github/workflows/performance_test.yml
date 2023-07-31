@@ -37,7 +37,7 @@ jobs:
       - name: "Setup Python"
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9.6
+          python-version: '3.11'
 
       - name: "Install Poetry"
         uses: snok/install-poetry@v1
