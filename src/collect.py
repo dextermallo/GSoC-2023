@@ -30,9 +30,10 @@ def get_test_command_arg(*args) -> CollectCommandArg:
     parser.add_argument('--raw-output', type=str, help='raw output')
     parser.add_argument('--output', type=str, help='output')
     parser.add_argument('--waf-endpoint', type=str, help='waf endpoint')
+    parser.add_argument('--mode', type=str, help='mode')
     
     parsed_args = parser.parse_args()
-    
+
     return CollectCommandArg(
         test_name=parsed_args.test_name,
         before=parsed_args.before,
@@ -40,7 +41,8 @@ def get_test_command_arg(*args) -> CollectCommandArg:
         utils=None if parsed_args.utils is None else parsed_args.utils.split(","),
         raw_output=parsed_args.raw_output,
         output=parsed_args.output,
-        waf_endpoint=parsed_args.waf_endpoint
+        waf_endpoint=parsed_args.waf_endpoint,
+        mode=parsed_args.mode
     )
 
 def init(arg: CollectCommandArg):

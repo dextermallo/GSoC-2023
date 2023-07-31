@@ -2,7 +2,7 @@ import re
 import os
 from typing import List, Optional
 
-from src.type import UtilType
+from src.type import UtilType, Mode
 
 
 class CollectCommandArg:
@@ -14,6 +14,7 @@ class CollectCommandArg:
     raw_output: Optional[str]
     output: Optional[str]
     waf_endpoint: Optional[str]
+    mode: Optional[Mode]
 
     # Auto generated
     tmp_dir: str = './tmp'
@@ -31,12 +32,14 @@ class CollectCommandArg:
                  output: Optional[str],
                  before: Optional[str],
                  after: Optional[str],
-                 waf_endpoint: Optional[str]
+                 waf_endpoint: Optional[str],
+                 mode: Optional[Mode]
                  ):
         self.test_name = test_name
         self.utils = utils if (utils is not None and len(utils)) else [util for util in UtilType]
         self.before = before if before else "HEAD"
         self.after = after if after else "."
+        self.mode = mode if mode else Mode.cli
         
         if not self.__isGitCommitHash(self.before) and not self.__isGitCommitHash(self.after):
             raise Exception("Invalid before/after: only one local folder is allowed")
