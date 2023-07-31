@@ -47,20 +47,6 @@ jobs:
           virtualenvs-in-project: false
           installer-parallel: true
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-
-      - name: Install project
-        run: poetry install --no-interaction
-
       # check changed files, clone the old rules in folder /old_rules
       # the old rules are used to compare the new rules with the old ones
       - name: "Clone changed rules and corresponding test cases"
@@ -68,14 +54,16 @@ jobs:
         run: |
 
           # inspection
+          virtualenv .env
           source .venv/bin/activate
+          poetry install
 
           BEFORE_COMMIT=${{ github.event.before }}
           AFTER_COMMIT=${{ github.event.after }}
 
           poetry run collect --test-name pipeline-test --before $BEFORE_COMMIT --after $AFTER_COMMIT --utils ftw
 
-          
+
 
           num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
           echo "num_changed_rules=$num_changed_rules" >> "$GITHUB_OUTPUT"
