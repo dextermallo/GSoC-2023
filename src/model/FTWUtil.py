@@ -45,7 +45,7 @@ class FTWUtil(Util):
         command = f'{ftw_util_path} run -d {args.test_cases_dir} -o json'
 
         f = open(output_file, "w")
-        ctx = subprocess.run(command, shell=True, check=False, stderr=subprocess.DEVNULL, stdout=f)
+        ctx = subprocess.run(command, shell=True, check=True, stderr=subprocess.DEVNULL, stdout=f)
         print(ctx.stdout)
         print(ctx.stderr)
         print(ctx.returncode)
