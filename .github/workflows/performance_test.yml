@@ -64,11 +64,7 @@ jobs:
 
       - name: "Display Text-based report"
         run: |
-
-          BEFORE_COMMIT=${{ github.event.before }}
-          AFTER_COMMIT=${{ github.event.after }}
-
-          poetry run report --test-name pipeline-test --before "$BEFORE_COMMIT" --after "$AFTER_COMMIT" --utils ftw
+          poetry run report --test-name pipeline-test --utils ftw
 
       - uses: actions/upload-artifact@v3
         with:
