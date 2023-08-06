@@ -369,10 +369,10 @@ class Util(ABC):
         (column, line) = shutil.get_terminal_size((80, 20))
         
         if column < 120:
-            raise Exception("Terminal column is too small, minimum requirement: 120")
+            raise Exception(f"Terminal column is too small, minimum requirement: 120 (current: {column})")
         
         if line < 12:
-            raise Exception("Terminal line is too small, minimum requirement: 12")
+            raise Exception(f"Terminal line is too small, minimum requirement: 12 (current: {line})")
 
         config = {
             "colors": [ asciichart.blue,  asciichart.red],

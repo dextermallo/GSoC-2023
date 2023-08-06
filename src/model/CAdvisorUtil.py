@@ -8,7 +8,7 @@ import os
 from typing import Type, List
 
 from .Util import Util, ParsedDataItem, CollectCommandArg, ReportCommandArg
-from src.type import State
+from src.type import State, Mode
 from src.utils import logger
 
 
@@ -27,9 +27,12 @@ class CAdvisorUtil(Util):
         # start cAdvisor container
         self.__start_cadvisor()
         
+        # @TODO: better wrapping for different mode
+        ftw_util_path = './ftw' if args.mode == Mode.pipeline.name else 'go-ftw'
+        
         # start go-ftw in parallel
         proc_ftw_data_collector = subprocess.Popen(
-            [f"go-ftw run -d {args.test_cases_dir} -o json"],
+            [f"{ftw_util_path} run -d {args.test_cases_dir} -o json"],
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
@@ -136,13 +139,15 @@ class CAdvisorUtil(Util):
             gcr.io/cadvisor/cadvisor:{self.__cAdvisor_container_version}
             """
             
-            subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            output = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            print(output.stdout)
+            print(output.stderr)
             logger.info("Waiting for cAdvisor to be up...")
             cnt = 0
             while not self.container_is_healthy("cadvisor") and cnt < 6:
                 time.sleep(10)
                 cnt += 1
-            time.sleep(30)
+            time.sleep(60)
         except Exception as e:
             logger.error(e)
             exit(1)

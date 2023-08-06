@@ -5,7 +5,7 @@ import time
 from typing import List
 
 from .Util import ParsedDataItem, Util, ReportCommandArg, CollectCommandArg
-from src.type import State
+from src.type import State, Mode
 
 
 REPORT_PLAIN_TEXT_FORMAT: str = (
@@ -37,10 +37,20 @@ class FTWUtil(Util):
 
         # go-ftw requires time to spin up, otherwise the I/O might be timeout
         time.sleep(5)
+
+        # @TODO: better wrapping for different mode
+        ftw_util_path = './ftw' if args.mode == Mode.pipeline.name else 'go-ftw'
         
-        command = f'go-ftw run -d {args.test_cases_dir} -o json > {args.raw_output}/{state.name}_{self.raw_filename}'
-        subprocess.run(command, shell=True, check=False, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
-    
+        output_file = f"{args.raw_output}/{state.name}_{self.raw_filename}"
+        command = f'{ftw_util_path} run -d "{args.test_cases_dir}" -o json > "{output_file}"'
+        
+        f = open(output_file, "w")
+        proc = subprocess.Popen([command], stdout=f, stderr=subprocess.PIPE, shell=True)
+        if proc.returncode != 0:
+            # @TODO: handle errors from go-ftw
+            print(proc.stderr.read().decode())
+        f.close()
+
     def text_report(self, args: ReportCommandArg):
         before_data = self.parse_data(f"{args.raw_output}/{State.before.name}_{self.raw_filename}")
         after_data = self.parse_data(f"{args.raw_output}/{State.after.name}_{self.raw_filename}")

@@ -30,9 +30,10 @@ def get_test_command_arg(*args) -> CollectCommandArg:
     parser.add_argument('--raw-output', type=str, help='raw output')
     parser.add_argument('--output', type=str, help='output')
     parser.add_argument('--waf-endpoint', type=str, help='waf endpoint')
+    parser.add_argument('--mode', type=str, help='mode')
     
     parsed_args = parser.parse_args()
-    
+
     return CollectCommandArg(
         test_name=parsed_args.test_name,
         before=parsed_args.before,
@@ -40,7 +41,8 @@ def get_test_command_arg(*args) -> CollectCommandArg:
         utils=None if parsed_args.utils is None else parsed_args.utils.split(","),
         raw_output=parsed_args.raw_output,
         output=parsed_args.output,
-        waf_endpoint=parsed_args.waf_endpoint
+        waf_endpoint=parsed_args.waf_endpoint,
+        mode=parsed_args.mode
     )
 
 def init(arg: CollectCommandArg):
@@ -61,7 +63,12 @@ def init(arg: CollectCommandArg):
 def get_changed_rules(arg: CollectCommandArg) -> List[_ChangedRule]:
     exec_cmd = f"git diff --name-only {arg.before} {arg.after} | grep -E \'rules/.*.conf$\'"
     
-    subprocess.run(exec_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out = subprocess.run(exec_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    
+    if out.returncode != 0:
+        logger.info("No rule is changed")
+        exit(0)
+
     output = subprocess.check_output(exec_cmd, shell=True).decode()
         
     changedRules: List[_ChangedRule] = []
@@ -105,7 +112,10 @@ def init_docker_compose_file(arg: CollectCommandArg, state: State):
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # @TODO: this is a temporary fix for extra files created from sed
-    os.remove(f"./tests/docker-compose-{state.name}.yml-e")
+    try:
+        os.remove(f"./tests/docker-compose-{state.name}.yml-e")
+    except OSError:
+        pass
 
 def runner(args: CollectCommandArg, state: State):
     # start service with docker-compose
