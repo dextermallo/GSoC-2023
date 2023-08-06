@@ -66,14 +66,14 @@ jobs:
           BEFORE_COMMIT=${{ github.event.before }}
           AFTER_COMMIT=${{ github.event.after }}
 
-          poetry run collect --test-name pipeline-test --before "$BEFORE_COMMIT" --after "$AFTER_COMMIT" --utils cAdvisor --mode pipeline
+          poetry run collect --test-name pipeline-test --before "$BEFORE_COMMIT" --after "$AFTER_COMMIT" --utils locust --mode pipeline
 
       - name: "Display Text-based report"
         run: |
 
           # output to summary
           # poetry run report --test-name pipeline-test --utils ftw --threshold-conf './config' >> $GITHUB_STEP_SUMMARY
-          poetry run report --test-name pipeline-test --utils cAdvisor --threshold-conf './config' >> $GITHUB_STEP_SUMMARY
+          poetry run report --test-name pipeline-test --utils locust >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/upload-artifact@v3
         with:
