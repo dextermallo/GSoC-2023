@@ -20,7 +20,7 @@ class CAdvisorUtil(Util):
     # @TODO: add to variables
     __cAdvisor_endpoint: str = "http://127.0.0.1:8080/api/v1.1/subcontainers/docker/"
     __waf_container_name: str = "modsec2-apache"
-    __cAdvisor_container_version: str = "v0.45.0"
+    __cAdvisor_container_version: str = "v0.33.0"
     raw_filename: str = "cAdvisor.json"
     
     def collect(self, args: CollectCommandArg, state: State = None):
@@ -136,7 +136,7 @@ class CAdvisorUtil(Util):
             --name=cadvisor \
             --privileged \
             --device=/dev/kmsg \
-            gcr.io/cadvisor/cadvisor:{self.__cAdvisor_container_version}
+            google/cadvisor:{self.__cAdvisor_container_version}
             """
             
             output = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
