@@ -152,7 +152,7 @@ def init_docker_compose_file(arg: CollectCommandArg, state: State):
         state (State): state
     """
 
-    shutil.copyfile("./tests/docker-compose.yml", f"./tests/docker-compose-{state.name}.yml")
+    shutil.copyfile("./tests/docker-compose.yml", f"./tests/docker-compose-{state.value}.yml")
     processed_path = (arg.before_rules_dir if state == State.BEFORE.value else arg.after_rules_dir).replace("/", "\\/")
     cmd = f"""sed -i -e "s/- ..\\/rules/- ..\\/{processed_path}/g" .\\/tests\\/docker-compose-{state.value}.yml"""
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
