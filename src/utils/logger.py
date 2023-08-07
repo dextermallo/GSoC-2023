@@ -1,7 +1,14 @@
+"""
+Custom logger for logging
+"""
+
 import logging
 
 
 class Formatter(logging.Formatter):
+    """
+    Custom formatter for logging 
+    """
     __grey = "\x1b[38;20m"
     __yellow = "\x1b[33;20m"
     __red = "\x1b[31;20m"

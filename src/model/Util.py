@@ -1,71 +1,114 @@
+"""
+Module Util is an abstract class for Utils, it is used to read data from a source and store it in a database.
+Once the data is stored, it can be parsed and used for generating reports.
+extend this class to implement your own data collector.
+"""
+from abc import ABC, abstractmethod
+from typing import List
+from enum import Enum
+import os
+import json
+import shutil
+import yaml
 import asciichartpy as asciichart
 import dateutil.parser as date_parser
 from termcolor import colored
 from astropy.table import Table
-
-from abc import ABC, abstractmethod
-from typing import List
-from enum import Enum
-import yaml
-import os
-import json
-import shutil
-
+from src.utils import logger
 from .CollectCommandArg import CollectCommandArg
 from .ReportCommandArg  import ReportCommandArg
-from src.utils import logger
 
 
 class ParsedDataItem:
-    """@TODO: doc"""
+    """
+        ParsedDataItem is a class for representing a data item. It is used for generating reports.
+
+        Args:
+            - `key` (any): key is the identifier of the data item. Ideally, it will be the name of a matrix.
+            - `value` (any): value is the value of the data item.
+            - `labels` (List[str], optional): labels is useful when using Threshold. It can used for filter condition.
+                Defaults to [].
+        """
     key: any
     value: any
     labels: set
+
     def __init__(self, key: any, value: any, labels: List[str] = []):
         self.key = key
         self.value = value
         self.labels = set(labels)
 
 class _ComparisonUnit(Enum):
-    """@TODO: doc"""
-    each = 1,
-    average = 2,
-    sum = 3,
-    cnt = 4
+    """
+    comparison_unit is an enum for representing how the data will be compared between before and after.
+    
+    Options:
+        - `EACH`: compare each data item in before and after
+        - `AVERAGE`: compare the average value of before and after
+        - `SUM`: compare the sum of before and after
+        - `COUNT`: compare the count of before and after
+    """
+    EACH = 1,
+    AVERAGE = 2,
+    SUM = 3,
+    COUNT = 4
 
 class _ComparisonMethod(Enum):
-    """@TODO: doc"""
-    eq = 1,
-    ne = 2,
-    gt = 3,
-    lt = 4,
-    ge = 5,
-    le = 6,
+    """
+    comparison_method is an enum for representing how the data will be compared between before and after.
+    
+    Options:
+        - `EQ`: equal
+        - `NE`: not equal
+        - `GT`: greater than
+        - `LT`: less than
+        - `GE`: greater than or equal
+        - `LE`: less than or equal
+        
+        @TODO: currently rate_fn only supports to compare with object before
+        - `RATIO_GT`: greater than (ratio)
+        - `RATIO_LT`: less than (ratio)
+        - `RATIO_GE`: greater than or equal (ratio)
+        - `RATIO_LE`: less than or equal (ratio)
+    """
+    EQ = 1,
+    NE = 2,
+    GT = 3,
+    LT = 4,
+    GE = 5,
+    LE = 6,
 
-    # @TODO: currently rate_fn only supports to compare with object before
-    ratioIsGt = 7
-    ratioIsLt = 8
-    ratioIsGe = 9
-    ratioIsLe = 10
+    RATIO_GT = 7
+    RATIO_LT = 8
+    RATIO_GE = 9
+    RATIO_LE = 10
 
-"""@TODO: doc"""
 _data_processing_fn = {
-    _ComparisonMethod.eq.name: lambda a, b: a == b,
-    _ComparisonMethod.ne.name: lambda a, b: a != b,
-    _ComparisonMethod.ge.name: lambda a, b: a > b,
-    _ComparisonMethod.lt.name: lambda a, b: a < b,
-    _ComparisonMethod.ge.name: lambda a, b: a >= b,
-    _ComparisonMethod.le.name: lambda a, b: a <= b,
-    _ComparisonMethod.ratioIsGt.name: lambda a, b: a > b,
-    _ComparisonMethod.ratioIsLt.name: lambda a, b: a < b,
-    _ComparisonMethod.ratioIsGe.name: lambda a, b: a >= b,
-    _ComparisonMethod.ratioIsLe.name: lambda a, b: a <= b,
+    _ComparisonMethod.EQ.name: lambda a, b: a == b,
+    _ComparisonMethod.NE.name: lambda a, b: a != b,
+    _ComparisonMethod.GT.name: lambda a, b: a > b,
+    _ComparisonMethod.LT.name: lambda a, b: a < b,
+    _ComparisonMethod.GE.name: lambda a, b: a >= b,
+    _ComparisonMethod.LE.name: lambda a, b: a <= b,
+    _ComparisonMethod.RATIO_GT.name: lambda a, b: a > b,
+    _ComparisonMethod.RATIO_LT.name: lambda a, b: a < b,
+    _ComparisonMethod.RATIO_GE.name: lambda a, b: a >= b,
+    _ComparisonMethod.RATIO_LE.name: lambda a, b: a <= b,
 }
 
 class _ComparisonObject(Enum):
-    """@TODO: doc"""
-    threshold = 1,
-    before = 2,
+    """
+    ComparisonObject is an enum for representing the object of comparison.
+    (i.e., who compares with after-data)
+    When the comparison_object is set to THRESHOLD, the comparison_method will be applied to the threshold value.
+    Specifically, some comparison_method (e.g., RATIO_GT) only support THRESHOLD object.
+    
+    Options:
+        - `BEFORE`: compare the after-data with the before data
+        - `THRESHOLD`: compare the after-data with the threshold
+    """
+    THRESHOLD = 1,
+    BEFORE = 2,
 
 class Threshold:
     """@TODO: doc"""
@@ -76,9 +119,8 @@ class Threshold:
     comparison_method: _ComparisonMethod
     comparison_object: _ComparisonObject
     metric_name: str
-
     threshold: float
-    
+
     # if include_labels is None, then include all labels
     # if include_labels not None, then the threshold inspection only applies to
     # the data with the labels in include_labels, it is a OR condition
@@ -118,7 +160,7 @@ class Threshold:
         if before_data is None or after_data is None:
             logger.error("before_data or after_data is None")
             return False
-        
+
         if len(before_data) == 0 or len(after_data) == 0:
             logger.error("before_data or after_data is empty")
             return False
@@ -128,46 +170,46 @@ class Threshold:
         if before_val_type != after_val_type:
             logger.error("before_data and after_data have different type")
             return False
-        
-        if (before_val_type in [str, bool]) and self.comparison_method not in ['eq', 'ne']:
-            logger.error(f"str/bool type only support comparison method: eq, ne")
+
+        if (before_val_type in [str, bool]) and self.comparison_method not in ['EQ', 'NE']:
+            logger.error(f"str/bool type only support comparison method: EQ, NE")
             return False
 
         if not (before_val_type in [str, int, float, bool]):
             logger.error("current support data type: int, float, bool, str")
             return False
-        
-        if self.comparison_method in [7, 8, 9, 10] and self.comparison_object == _ComparisonObject.threshold:
+
+        if self.comparison_method in [7, 8, 9, 10] and self.comparison_object == _ComparisonObject.THRESHOLD:
             logger.error("rate comparison method only support with object: before")
             return False
-        
+
         # filter data
         before_data = [data for data in before_data if self.__filter_by_labels(data)]
         after_data = [data for data in after_data if self.__filter_by_labels(data)]
-        
+
         # process value by comparison_unit
-        if self.comparison_unit == _ComparisonUnit.cnt.name:
+        if self.comparison_unit == _ComparisonUnit.COUNT.name:
             before_data = [ParsedDataItem("cnt", len(before_data), [])]
             after_data = [ParsedDataItem("cnt", len(after_data), [])]
-        elif self.comparison_unit == _ComparisonUnit.sum.name:
+        elif self.comparison_unit == _ComparisonUnit.SUM.name:
             before_data = [ParsedDataItem("sum", sum([data.value for data in before_data]), [])]
             after_data = [ParsedDataItem("sum", sum([data.value for data in after_data]), [])]
-        elif self.comparison_unit == _ComparisonUnit.average.name:
+        elif self.comparison_unit == _ComparisonUnit.AVERAGE.name:
             before_data = [ParsedDataItem("average", sum([data.value for data in before_data]) / len(before_data), [])]
             after_data = [ParsedDataItem("average", sum([data.value for data in after_data]) / len(after_data), [])]
-        elif self.comparison_unit == _ComparisonUnit.each.name:
+        elif self.comparison_unit == _ComparisonUnit.EACH.name:
             pass
-        
+
         # evaluate the value
         # @TODO: current only support same-length data
         # impl a non-length-sensitive version (e.g., time)
-        if self.comparison_unit == _ComparisonUnit.each and len(before_data) != len(after_data):
+        if self.comparison_unit == _ComparisonUnit.EACH and len(before_data) != len(after_data):
             raise Exception("before_data and after_data have different length")
 
         passed, res = False, True
         for idx in range(len(after_data)):
             # @TODO: optimize enum issue
-            if self.comparison_method in [_ComparisonMethod.ratioIsGt.name, _ComparisonMethod.ratioIsLt.name, _ComparisonMethod.ratioIsGe.name, _ComparisonMethod.ratioIsLe.name]:
+            if self.comparison_method in [_ComparisonMethod.RATIO_GT.name, _ComparisonMethod.RATIO_LT.name, _ComparisonMethod.RATIO_GE.name, _ComparisonMethod.RATIO_LE.name]:
                 ratio = after_data[idx].value / before_data[idx].value
                 passed = _data_processing_fn[self.comparison_method](self.threshold, ratio)
             else:
@@ -184,7 +226,7 @@ class Threshold:
                 res = False
 
         return res
-    
+
     def __filter_by_labels(self, data: ParsedDataItem) -> bool:
         # check include
         res = True
@@ -193,16 +235,16 @@ class Threshold:
             for label in data.labels:
                 if label in self.include_labels:
                     res = True
-        
+
         if not res: 
             return False
-        
+
         # check exclude
         if (self.exclude_labels is not None) and (len(self.exclude_labels) > 0):
             for label in data.labels:
                 if label in self.exclude_labels:
                     res = False
-        
+
         return res
 
     def color_text(self, text: str, color: str, bold: bool = False):
@@ -215,30 +257,29 @@ class _FTWTestInput:
     headers: dict = {}
     data: str = ""
     uri: str = "/"
-    
+
     def __init__(self, dict: dict):
         for k, v in dict.items():
             setattr(self, k, v)
-        
+
         HTTP_METHOD_LIST = ["GET", "HEAD", "POST", "PUT", "DELETE"
                             , "OPTIONS", "TRACE", "PATCH"]
-        
+
         if self.method not in HTTP_METHOD_LIST:
-            logger.warning(f"Invalid method in go-ftw yaml testcase: {self.method}, replace for 'GET to bypass'")
+            logger.warning(f"Invalid method in go-ftw yaml. Testcase: {self.method}, replace for 'GET to bypass'")
             self.method = "GET"
 
 class _FTWTestSchema:
     """@TODO: doc"""
     test_title: str
     stages: List[_FTWTestInput]
-    
+
     def __init__(self, test_title: str, stages: List[_FTWTestInput]):
         self.test_title = test_title
         self.stages = stages
 
 class Util(ABC):
-    """@TODO: doc"""
-    """_summary_
+    """
     Util is an abstract class for Utils,
     it is used to read data from a source and store it in a database.
     extend this class to implement your own data collector.
@@ -262,7 +303,7 @@ class Util(ABC):
             NotImplementedError: the method is not implemented
         """
         raise NotImplementedError
-    
+
     @abstractmethod
     def text_report(self, args: ReportCommandArg):
         """_summary_
@@ -289,20 +330,20 @@ class Util(ABC):
             NotImplementedError: the method is not implemented
         """
         raise NotImplementedError
-       
+
     def _parse_ftw_test_file(self, file_path: str, case_limit: int) -> List[_FTWTestSchema]:
         if file_path is None:
-            raise Exception("file_path is None")
-        
+            raise LookupError("file_path is None")
+
         data: List[_FTWTestSchema] = []
-        
+
         # find filename which match the rule id
         for root, _, files in os.walk(file_path):
             for file_name in files:
                 data += self.parse_go_ftw_yaml(os.path.join(root, file_name), case_limit)
 
         return data
-    
+
     def parse_go_ftw_yaml(self, file_path: str, case_limit: int = 1e10) -> List[_FTWTestSchema]:
         """_summary_
         @TODO: documentation
@@ -314,35 +355,41 @@ class Util(ABC):
         """
         with open(file_path, 'r') as file:
             data = yaml.safe_load(file)
+        file.close()
 
-        res = []
+        res, cnt = [], 0
 
-        cnt = 0
-        
         for data in data["tests"]:
             test_title = data['test_title']
             inputs: List[_FTWTestInput] = []
-            
             for stage in data['stages']:
                 inputs.append(_FTWTestInput(stage["stage"]["input"]))
                 cnt += 1
                 if cnt >= case_limit:
                     break
-                
             test = _FTWTestSchema(test_title, inputs)
             res.append(test)
-            
             if cnt >= case_limit:
                 break
 
         return res
-    
     def _get_threshold(self, file_path: str) -> List[Threshold]:
         with open(file_path, 'r') as f:
             raw_data = json.load(f)
             return [Threshold(**data) for data in raw_data["thresholds"]]
-    
+
     def create_colored_text_by_value(self, value: any) -> str:
+        """_summary_
+
+        Args:
+            value (any): _description_
+
+        Raises:
+            Exception: _description_
+
+        Returns:
+            str: _description_
+        """
         color: str
 
         if type(value) == bool:
@@ -359,18 +406,26 @@ class Util(ABC):
             raise Exception("Invalid value type")
 
         return colored(str(value),color, attrs=["bold"])
-        
+
     def create_time_series_terminal_plot(
         self,
         title: str,
         before_data: List[ParsedDataItem],
         after_data: List[ParsedDataItem]) -> str:
 
+        """_summary_
+
+        Raises:
+            Exception: _description_
+            Exception: _description_
+
+        Returns:
+            _type_: _description_
+        """
+
         (column, line) = shutil.get_terminal_size((80, 20))
-        
         if column < 120:
             raise Exception(f"Terminal column is too small, minimum requirement: 120 (current: {column})")
-        
         if line < 12:
             raise Exception(f"Terminal line is too small, minimum requirement: 12 (current: {line})")
 
@@ -378,7 +433,6 @@ class Util(ABC):
             "colors": [ asciichart.blue,  asciichart.red],
             "height": line - 7
         }
-        
         def iso_time_str_to_unix_time(iso_time_str: str) -> float:
             return date_parser.parse(iso_time_str).timestamp()
 
@@ -386,9 +440,10 @@ class Util(ABC):
         def flatten(list: List[ParsedDataItem]) -> list:
             start_time = iso_time_str_to_unix_time(list[0].key)
             end_time = iso_time_str_to_unix_time(list[-1].key)
-            for i in range(len(list)):
-                compressed_time = (iso_time_str_to_unix_time(list[i].key) - start_time) / (end_time - start_time)
-                list[i].key = round(compressed_time * 100)
+
+            for data in list:
+                compressed_time = (iso_time_str_to_unix_time(data.key) - start_time) / (end_time - start_time)
+                data.key = round(compressed_time * 100)
 
             arr, cur = [], 0
 
@@ -433,10 +488,9 @@ class Util(ABC):
 
         for key in key_set:
             before, after, cur_output = before_data[key], after_data[key], []
-            
             if len(before[0].value) != len(after[0].value):
-                raise Exception("The before and after data must have the same length")
-            
+                raise ValueError("The before and after data must have the same length")
+
             for i in range(len(before[0].value)):
                 diff = round(float(before[0].value[i]) - float(after[0].value[i]), 4)
                 out = (
@@ -444,9 +498,19 @@ class Util(ABC):
                     f" ({self.create_colored_text_by_value(diff)})"
                 )
                 cur_output.append(out)
-        
-            output[key] = cur_output    
+            output[key] = cur_output  
         return output
-    
-    def color_text(self, text: str, color: str, bold: bool = False):
+
+    def color_text(self, text: str, color: str, bold: bool = False) -> str:
+        """
+        color_text() is a method for coloring a text with ANSI code.
+
+        Args:
+            text (str): the text to be colored
+            color (str): the color of the text
+            bold (bool, optional): bold font size. Defaults to False.
+
+        Returns:
+            str: the colored text
+        """
         return colored(text, color, attrs=[] if not bold else ["bold"])

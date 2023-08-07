@@ -1,3 +1,6 @@
+"""
+Package for utility functions.
+"""
 from .logger import logger
 
 

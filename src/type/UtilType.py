@@ -1,3 +1,6 @@
+"""
+Module UtilType is an enum for representing the type of available utils
+"""
 from enum import Enum
 
 
@@ -11,9 +14,9 @@ class UtilType(Enum):
         - `cAdvisor`: cAdvisor
         - `eBFF`: eBFF
     """
-    ftw = "ftw",
-    locust = "locust",
-    cAdvisor = "cAdvisor",
-    
+    FTW = "ftw",
+    LOCUST = "locust",
+    CADVISOR = "cAdvisor",
+
     # @TODO: impl
-    eBFF = "eBFF"
+    EBPF = "eBFF"

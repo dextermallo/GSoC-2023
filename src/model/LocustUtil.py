@@ -1,13 +1,26 @@
+"""
+Module LocustUtil is a class for collecting data from locust
+
+Usage:
+    ```sh
+    TEST_NAME=example
+    poetry run collect --test-name $TEST_NAME --utils locust
+    poetry run report --test-name $TEST_NAME --utils locust
+"""
 import subprocess
 import os
 import csv
 from typing import List
-
 from src.type import State
 from .Util import Util, ParsedDataItem, CollectCommandArg, ReportCommandArg
 
 
 class LocustUtil(Util):
+    """
+    LocustUtil is a class for collecting data from locust,
+    it utilizes locust for calling the testcases and parsing the data.
+    The testcase is generated from go-ftw with changed rules.
+    """
     __exec_filename: str = "exec.py"
     __max_users = 100
     __spawn_rate = 100
@@ -32,47 +45,47 @@ class LocustUtil(Util):
             f"-u {self.__max_users} \\"
             f"-r {self.__spawn_rate} \\"
             f"--host={args.waf_endpoint} \\"
-            f"--csv={args.raw_output}/{state.name}_locust \\"
+            f"--csv={args.raw_output}/{state.value}_locust \\"
             f"-t {self.__runtime}s"   
         )
 
-        _ = subprocess.run(command, shell=True, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    
+        subprocess.run(command, shell=True, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
     def text_report(self, args: ReportCommandArg):
-        before_data = self.__parse_data(os.path.join(f"{args.raw_output}/{State.before.name}_{self.__raw_file_name}"))
-        after_data = self.__parse_data(os.path.join(f"{args.raw_output}/{State.after.name}_{self.__raw_file_name}"))
+        before_data = self.__parse_data(os.path.join(f"{args.raw_output}/{State.BEFORE.value}_{self.__raw_file_name}"))
+        after_data = self.__parse_data(os.path.join(f"{args.raw_output}/{State.AFTER.value}_{self.__raw_file_name}"))
         print(self.create_data_diff_terminal_table(before_data, after_data, self.__data_schema[2:]))
 
-    def figure_report(self):
+    # @TODO: impl
+    def figure_report(self, args: ReportCommandArg):
         pass
 
-    # currently, we cannot detect whether the website should block (e.g., 405) or not,
-    # because the origin implementation of go-ftw validate the TP/TN by checking logs
-    # ideally, this should be validated using outputs
     def __create_template(self, args: CollectCommandArg):
         """
-        @TODO: documentation
+        create_template() creates the template for locust testcases
+        @TODO: currently, it cannot detect whether the website should block (e.g., 405) or not,
+        because the origin implementation of go-ftw validate the TP/TN by checking logs
+        ideally, this should be validated using outputs
         """
         data = self._parse_ftw_test_file(args.test_cases_dir, self.__test_case_per_file_limit)
-        
+
         template = (
             "from locust import HttpUser, task\n"
             "\n"
             "class AutomatedGenTest(HttpUser):\n"
         )
-        
-        """
-        @task
-        def fn$test_title_$stage(self):
-            headers = $headers
-            data = '''$data'''
 
-            with self.client.$method("/", headers=headers, data=data, catch_response=True) as response:
-                try:
-                    response.success()
-                except Exception as e:
-                    response.failure(e)
-        """
+        # template case:
+        # @task
+        # def fn$test_title_$stage(self):
+        #     headers = $headers
+        #     data = '''$data'''
+
+        #     with self.client.$method("/", headers=headers, data=data, catch_response=True) as response:
+        #         try:
+        #             response.success()
+        #         except Exception as e:
+        #             response.failure(e)
         fn_template = (
             "\t@task\n"
             "\tdef fn$test_title_$stage(self):\n"
@@ -98,8 +111,18 @@ class LocustUtil(Util):
         
         with open(self.__exec_filename, "w") as file:
             file.write(template)
-            
+        file.close()
+
     def __parse_data(self, file_path: str)  -> dict[str, List[ParsedDataItem]]:
+        """
+        parse_data parses the raw data from locust into a dict of ParsedDataItem
+
+        Args:
+            file_path (str): file path of the raw data
+
+        Returns:
+            dict[str, List[ParsedDataItem]]: data parsed from the file
+        """
         res: dict[str, List[ParsedDataItem]] = {}
 
         with open(file_path, 'r') as f:
@@ -107,6 +130,8 @@ class LocustUtil(Util):
             data = list(reader)
 
             for i in range(1, len(data)):
+                # data "Aggregated" will be created as a col
                 req_type = "Aggregated" if i == len(data) - 1 else data[i][0]
                 res[req_type] = [ParsedDataItem(req_type, data[i][2:])]
+        f.close()
         return res

@@ -1,3 +1,7 @@
+"""
+Module State is an enum for representing the state of the test case.
+"""
+
 from enum import Enum
 
 
@@ -10,5 +14,5 @@ class State(Enum):
         - `before`: the state before the change
         - `after`: the state after the change
     """
-    before = "before"
-    after = "after"
+    BEFORE = "before"
+    AFTER = "after"
