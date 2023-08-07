@@ -178,6 +178,7 @@ def runner(args: CollectCommandArg, state: State):
     subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, capture_output=False)
 
     # check it's up and running
+    print(args.waf_endpoint)
     if not waf_server_is_up(args.waf_endpoint):
         logger.critical("WAF server is not up")
         exit(1)
