@@ -32,7 +32,7 @@
             "threshold_desc": "rule 920170 is slower than before more than 5x",
             "metric_name": "runtime",
             "comparison_unit": "",
-            "comparison_method": "ratioIsGt",
+            "comparison_method": "ratioGt",
             "comparison_object": "before",
             "threshold": 5,
             "include_labels": ["920170"],
