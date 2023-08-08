@@ -45,8 +45,6 @@ class FTWUtil(Util):
         output_file = f"{args.raw_output}/{state.value}_{self.raw_filename}"
         command = f'{ftw_util_path} run -d "{args.test_cases_dir}" -o json > "{output_file}"'
 
-        print(command)
-
         f = open(output_file, "w")
         proc = subprocess.Popen([command], stdout=f, stderr=subprocess.PIPE, shell=True)
         if proc.returncode != 0:
