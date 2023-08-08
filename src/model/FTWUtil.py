@@ -36,12 +36,11 @@ class FTWUtil(Util):
     raw_filename: str = "ftw.json"
 
     def collect(self, args: CollectCommandArg, state: State = None):
-
         # go-ftw requires time to spin up, otherwise the I/O might be timeout
         time.sleep(5)
 
         # @TODO: better wrapping for different mode
-        ftw_util_path = './ftw' if args.mode == Mode.PIPELINE.name else 'go-ftw'
+        ftw_util_path = './ftw' if args.mode == Mode.PIPELINE.value else 'go-ftw'
 
         output_file = f"{args.raw_output}/{state.value}_{self.raw_filename}"
         command = f'{ftw_util_path} run -d "{args.test_cases_dir}" -o json > "{output_file}"'

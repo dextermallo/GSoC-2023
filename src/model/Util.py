@@ -48,9 +48,9 @@ class _ComparisonUnit(Enum):
         - `SUM`: compare the sum of before and after
         - `COUNT`: compare the count of before and after
     """
-    EACH = 1,
-    AVERAGE = 2,
-    SUM = 3,
+    EACH = 1
+    AVERAGE = 2
+    SUM = 3
     COUNT = 4
 
 class _ComparisonMethod(Enum):
@@ -71,29 +71,29 @@ class _ComparisonMethod(Enum):
         - `RATIO_GE`: greater than or equal (ratio)
         - `RATIO_LE`: less than or equal (ratio)
     """
-    EQ = 1,
-    NE = 2,
-    GT = 3,
-    LT = 4,
-    GE = 5,
-    LE = 6,
+    EQ = 'eq'
+    NE = 'ne'
+    GT = 'gt'
+    LT = 'le'
+    GE = 'ge'
+    LE = 'le'
 
-    RATIO_GT = 7
-    RATIO_LT = 8
-    RATIO_GE = 9
-    RATIO_LE = 10
+    RATIO_GT = 'ratioGt'
+    RATIO_LT = 'ratioLt'
+    RATIO_GE = 'ratioGe'
+    RATIO_LE = 'ratioLe'
 
 _data_processing_fn = {
-    _ComparisonMethod.EQ.name: lambda a, b: a == b,
-    _ComparisonMethod.NE.name: lambda a, b: a != b,
-    _ComparisonMethod.GT.name: lambda a, b: a > b,
-    _ComparisonMethod.LT.name: lambda a, b: a < b,
-    _ComparisonMethod.GE.name: lambda a, b: a >= b,
-    _ComparisonMethod.LE.name: lambda a, b: a <= b,
-    _ComparisonMethod.RATIO_GT.name: lambda a, b: a > b,
-    _ComparisonMethod.RATIO_LT.name: lambda a, b: a < b,
-    _ComparisonMethod.RATIO_GE.name: lambda a, b: a >= b,
-    _ComparisonMethod.RATIO_LE.name: lambda a, b: a <= b,
+    _ComparisonMethod.EQ.value: lambda a, b: a == b,
+    _ComparisonMethod.NE.value: lambda a, b: a != b,
+    _ComparisonMethod.GT.value: lambda a, b: a > b,
+    _ComparisonMethod.LT.value: lambda a, b: a < b,
+    _ComparisonMethod.GE.value: lambda a, b: a >= b,
+    _ComparisonMethod.LE.value: lambda a, b: a <= b,
+    _ComparisonMethod.RATIO_GT.value: lambda a, b: a > b,
+    _ComparisonMethod.RATIO_LT.value: lambda a, b: a < b,
+    _ComparisonMethod.RATIO_GE.value: lambda a, b: a >= b,
+    _ComparisonMethod.RATIO_LE.value: lambda a, b: a <= b,
 }
 
 class _ComparisonObject(Enum):
@@ -171,7 +171,7 @@ class Threshold:
             logger.error("before_data and after_data have different type")
             return False
 
-        if (before_val_type in [str, bool]) and self.comparison_method not in ['EQ', 'NE']:
+        if (before_val_type in [str, bool]) and self.comparison_method not in ['eq', 'ne']:
             logger.error(f"str/bool type only support comparison method: EQ, NE")
             return False
 
@@ -209,7 +209,7 @@ class Threshold:
         passed, res = False, True
         for idx in range(len(after_data)):
             # @TODO: optimize enum issue
-            if self.comparison_method in [_ComparisonMethod.RATIO_GT.name, _ComparisonMethod.RATIO_LT.name, _ComparisonMethod.RATIO_GE.name, _ComparisonMethod.RATIO_LE.name]:
+            if self.comparison_method in [_ComparisonMethod.RATIO_GT.value, _ComparisonMethod.RATIO_LT.value, _ComparisonMethod.RATIO_GE.value, _ComparisonMethod.RATIO_LE.value]:
                 ratio = after_data[idx].value / before_data[idx].value
                 passed = _data_processing_fn[self.comparison_method](self.threshold, ratio)
             else:
