@@ -38,7 +38,7 @@ class CAdvisorUtil(Util):
         self.__start_cadvisor()
 
         # @TODO: better wrapping for different mode
-        ftw_util_path = './ftw' if args.mode == Mode.PIPELINE.name else 'go-ftw'
+        ftw_util_path = './ftw' if args.mode == Mode.PIPELINE.value else 'go-ftw'
 
         # start go-ftw in parallel
         proc_ftw_data_collector = subprocess.Popen(
