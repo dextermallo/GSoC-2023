@@ -14,7 +14,7 @@ on:
       - '.github/**'
 
 jobs:
-  performance:
+  performance_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -25,102 +25,57 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: "Setup Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: "Install Poetry"
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.5.1
+          virtualenvs-create: true
+          virtualenvs-in-project: false
+          installer-parallel: true
+
       - name: "Install dependencies"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GO_FTW_VERSION: '0.4.8'
         run: |
+
+          # install ftw
           gh release download -R coreruleset/go-ftw v${GO_FTW_VERSION} -p "ftw_${GO_FTW_VERSION}_linux_amd64.tar.gz" -O - | tar -xzvf - ftw
 
-      # check changed files, clone the old rules in folder /old_rules
-      # the old rules are used to compare the new rules with the old ones
-      - name: "Clone changed rules and corresponding test cases"
-        id: "performance_test_init"
-        run: |    
+          # fetch rules, tests, etc. form CRS
+          git clone https://github.com/coreruleset/coreruleset
+          mv ./coreruleset/plugins ./
+          mv ./coreruleset/tests ./
+          mv ./coreruleset/crs-setup.conf.example ./
+          rm -rf coreruleset
 
-          # test for ebpf
-          which dcsnoop.bt
-          which dcsnoop
-          which bpftrace
+          # create ftw yaml file
+          cp .example.ftw.yaml .ftw.yaml
 
-          # inspection
-          num_changed_rules=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' | wc -l)
-          echo "num_changed_rules=$num_changed_rules" >> "$GITHUB_OUTPUT"
+          # init dependencies
+          poetry install
 
-          # if no rule is changed, return
-          if [ $num_changed_rules = 0 ]; then
-            exit 0
-          fi
-
-          # output changes
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E 'rules/.*\.conf' > rules-changed.txt
-
-          # copy rule files
-          mkdir rules-before rules-after
-          while read -r filename; do
-            git show "${{ github.event.before }}:$filename" > "rules-before/${filename#rules/}"
-            git show "${{ github.event.after }}:$filename" > "rules-after/${filename#rules/}"
-          done < rules-changed.txt
-
-          # copy corresponding test files
-          mkdir rules-changed-test
-
-          while read -r filename; do
-            req="${filename#rules/}"
-            req="${result%.conf}"
-            cp -R tests/regression/tests/$req rules-changed-test/$req
-          done < rules-changed.txt
-
-      # performance tests
-      - name: "Run performance test for changed rules"
+      - name: "Collect raw data"
         run: |
 
-          mkdir output
+          BEFORE_COMMIT=${{ github.event.before }}
+          AFTER_COMMIT=${{ github.event.after }}
 
-          mkdir -p tests/logs/${{ matrix.modsec_version }}
-          origin_yaml_path=./tests/docker-compose.yml
+          poetry run collect --test-name pipeline-test --before "$BEFORE_COMMIT" --after "$AFTER_COMMIT" --utils locust,ftw --mode pipeline
 
-          # update yaml to test on before
-          sed -i -e "s/- ..\/rules/- ..\/rules-before/g" $origin_yaml_path
-
-          docker-compose -f $origin_yaml_path up -d "${{ matrix.modsec_version }}"
-          docker-compose -f $origin_yaml_path logs
-          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
-
-          ./ftw check -d rules-changed-test
-          $(./ftw run -d rules-changed-test > output/raw.before.txt) || echo "case fail"
-
-          # restart, test with after changes
-          docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
-          docker-compose -f ./tests/docker-compose.yml down
-          
-          sed -i -e "s/- ..\/rules-before/- ..\/rules-after/g" $origin_yaml_path
-          docker-compose -f $origin_yaml_path up -d "${{ matrix.modsec_version }}"
-          docker-compose -f $origin_yaml_path logs
-          [ $(docker inspect ${{ matrix.modsec_version }} --format='{{.State.Running}}') = 'true' ]
-
-          ./ftw check -d rules-changed-test
-          $(./ftw run -d rules-changed-test > output/raw.after.txt) || echo "case fail"
-
-          python3 --version
-
-        env:
-          FTW_LOGFILE: './tests/logs/${{ matrix.modsec_version }}/error.log'
-        if: steps.performance_test_init.outputs.num_changed_rules != '0'
-      # @TODO: create report
-
-      - name: "Change permissions if failed"
-        if: failure()
+      - name: "Display Text-based report"
         run: |
-            # we want to get the audit log, so change permissions (file is only for root on docker)
-            sudo chmod 644 tests/logs/${{ matrix.modsec_version }}/modsec_audit.log
+
+          # output to summary
+          poetry run report --test-name pipeline-test --utils ftw --threshold-conf './config' >> $GITHUB_STEP_SUMMARY
+          poetry run report --test-name pipeline-test --utils locust >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/upload-artifact@v3
         with:
-          name: output
-          path: output
-
-      - name: Clean docker-compose
-        run: |
-          docker-compose -f ./tests/docker-compose.yml stop "${{ matrix.modsec_version }}"
-          docker-compose -f ./tests/docker-compose.yml down
+          name: data
+          path: data

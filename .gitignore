@@ -8,7 +8,7 @@ __pycache__
 # clones form CRS
 plugins/
 tests/
-.crs-setup.conf.example
+crs-setup.conf.example
 
 # auto-generated files
 tmp/

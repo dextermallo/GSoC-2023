@@ -205,7 +205,7 @@
 
 > Jul 20, 2023
 >
-> Thread: N/A
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1689861012777359
 
 1. Progress
 
@@ -217,7 +217,44 @@
 
 2. Next Actions
 
-- [ ] Discuss/Draft 2nd phase objective/goals (Cont.)
-- [ ] Bug/Changes from previous comments.
-- [ ] Create reports for cAdvisor/locust.
-- [ ] Add threshold for cAdvisor/locust.
+- Discuss/Draft 2nd phase objective/goals (Cont.)
+- Bug/Changes from previous comments.
+- Create reports for cAdvisor/locust.
+- Add threshold for cAdvisor/locust
+
+# Meeting 9
+
+> Jul 27, 2023
+>
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1690464215034819
+
+1. Progress
+
+- [x] Finalize 2nd phase objective/goals
+- [x] Bug/Changes from previous comments
+- [x] Create reports for cAdvisor/locust
+- [x] Add threshold configurations for cAdvisor/locust
+
+2. Next Actions
+- Update test cases
+- Integrate into GitHub Action
+- Fine-tune output/blocking for pipelines
+- Documentation
+
+# Meeting 10
+
+> Aug 3, 2023
+>
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1691091689381609
+
+1. Progress
+- [ ] Update test cases: working on integration test
+- [ ] Integrate into GitHub Action: go-ftw completed [(link)](https://github.com/dextermallo/GSoC-2023/actions/runs/5716710386), cAdvisor has an OS issue (WIP)
+- [ ] Fine-tune output/blocking for pipelines: looking for better utils that can put summary as comments directly
+- [] Documentation: WIP
+
+2. Next Actions
+- Update test cases
+- Integrate into GitHub Action
+- Fine-tune output/blocking for pipelines
+- Documentation

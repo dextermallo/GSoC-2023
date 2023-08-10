@@ -1,15 +1,15 @@
-from .ChangedRule import ChangedRule
-from .CollectCommandArg import CollectCommandArg, UtilType
-from .ReportCommandArg import ReportCommandArg
+"""
+Package for all the types used in the repository.
+"""
+from .Mode import Mode
 from .ReportFormat import ReportFormat
 from .State import State
+from .UtilType import UtilType
 
 
 __all__ = [
-    "ChangedRule",
-    "CollectCommandArg",
-    "ReportCommandArg",
+    "Mode",
     "ReportFormat",
     "State",
-    "UtilType"
+    "UtilType",
 ]
