@@ -81,7 +81,14 @@ poetry run report --test-name test --utils ftw
 poetry run report --test-name test --utils locust
 ```
 
-> @TODO: add figures
+Here are the results of running the command `poetry run report`:
+
+- cAdvisor (one threshold is failed)
+    ![report-example-cAdvisor-with-threshold](./assets/report-example-cAdvisor-with-threshold.png)
+- locust (without threshold)
+    ![report-example-locust](./assets/report-example-locust.png)
+- ftw (all thresholds are passed)
+    ![report-example-ftw-with-threshold](./assets/report-example-ftw-with-threshold.png)
 
 ## Pipeline Mode
 

@@ -8,6 +8,7 @@ __pycache__
 # clones form CRS
 plugins/
 tests/
+rules/
 crs-setup.conf.example
 
 # auto-generated files
@@ -17,6 +18,3 @@ report/
 
 # user-specific files
 .ftw.yaml
-
-# temprary archived
-assets
