@@ -106,17 +106,18 @@ class CAdvisorUtil(Util):
         with open(file_path, "r") as f:
             raw_data = json.load(f)
 
-            # load data from corresponding field from cAdvisor API
-            mp = [
-                ("cpu_total", raw_data["cpu"]["usage"]["total"]),
-                ("cpu_user", raw_data["cpu"]["usage"]["user"]),
-                ("cpu_system", raw_data["cpu"]["usage"]["system"]),
-                ("memory_usage", raw_data["memory"]["usage"]),
-                ("memory_cache", raw_data["memory"]["cache"])
-            ]
+            for data in raw_data:
+                # load data from corresponding field from cAdvisor API
+                mp = {
+                    "cpu_total": data["cpu"]["usage"]["total"],
+                    "cpu_user": data["cpu"]["usage"]["user"],
+                    "cpu_system": data["cpu"]["usage"]["system"],
+                    "memory_usage": data["memory"]["usage"],
+                    "memory_cache": data["memory"]["cache"]
+                }
 
-            for metric_name, metric_data in mp:
-                res[metric_name].append(ParsedDataItem(raw_data["timestamp"], metric_data))
+                for key in mp:
+                    res[key].append(ParsedDataItem(data["timestamp"], mp[key]))
 
         f.close()
         return res

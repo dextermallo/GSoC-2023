@@ -241,7 +241,7 @@
 - Fine-tune output/blocking for pipelines
 - Documentation
 
-# Meeting 10
+# Regular updates
 
 > Aug 3, 2023
 >
@@ -249,12 +249,30 @@
 
 1. Progress
 - [ ] Update test cases: working on integration test
-- [ ] Integrate into GitHub Action: go-ftw completed [(link)](https://github.com/dextermallo/GSoC-2023/actions/runs/5716710386), cAdvisor has an OS issue (WIP)
-- [ ] Fine-tune output/blocking for pipelines: looking for better utils that can put summary as comments directly
-- [] Documentation: WIP
+- [x] Integrate into GitHub Action: go-ftw completed [(link)](https://github.com/dextermallo/GSoC-2023/actions/runs/5716710386), cAdvisor has an OS issue (WIP)
+- [x] Fine-tune output/blocking for pipelines: looking for better utils that can put summary as comments directly
+- [x] Documentation: WIP
 
 2. Next Actions
 - Update test cases
 - Integrate into GitHub Action
 - Fine-tune output/blocking for pipelines
 - Documentation
+
+# Meeting 10
+
+> Aug 10, 2023
+>
+> Thread: 
+
+1. Progress
+- [x] Update test cases (Continue)
+- [x] Integrate into GitHub Action: locust and ftw completed, cAdvisor requires gcr, which is not supported by GitHub Action (On-hold)
+- [x] Fine-tune output/blocking for pipelines
+- [x] Code Documentation
+- [x] Updates for the roadmaps for the framework ((link))[https://github.com/dextermallo/GSoC-2023/issues/9]
+
+2. Next Actions
+- Documentation: Tutorial, Usage, etc.
+- Plans for project migration.
+- Test cases (Continue)
