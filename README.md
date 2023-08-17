@@ -44,6 +44,23 @@ A list of deliverables in this GSoC project includes:
 5. Based on the existing Docker images, perform different evaluations with different configurations/versions.
 6. Documentation.
 
+# Workflow and Process
+
+The following diagram depicts the workflow and process of the framework:
+
+![process diagram](./assets/process-diagram.png)
+
+Specifically, there are two terms to be considered when using the framework:
+
+1. **Utility**: A utility means a tool that is used to collect matrices in the framework. For instance, people may be interested in how a change will impact CPU and memory usage. Therefore, cAdvisor can be used to collect these matrices.
+2. **Matrices**: Matrices are the value that you are looking for. For example, CPU and memory usage are the matrices that you are looking for in the previous example.
+
+You must choose the appropriate utility to collect the matrices you are looking for. Details of the supported utilities and matrices can be found in Section [Utils and Matrices](#utils-and-matrices).
+
+Meanwhile, Each utility must implement two modules:
+1. **Collect Module**: Collect module is called when the command `poetry run collect` is executed. The collect module is responsible for collecting the matrices from the utility. These data are classified as raw data.
+2. **Report Module**: Report module is called when the command `poetry run report` is executed. The report module is responsible for parsing and visualizing the data in different formats (e.g., text, image, HTML).
+
 # Use cases
 
 The framework supports two use cases:
@@ -81,13 +98,29 @@ poetry run report --test-name test --utils ftw
 poetry run report --test-name test --utils locust
 ```
 
-Here are the results of running the command `poetry run report`:
+To demonstrate how the framework can help to dive into the performance bottleneck, we use the following example to show how the framework can help to find the bottleneck. Here are the changes in the test:
 
-- cAdvisor (one threshold is failed)
+```md
+# Test case: rule 920170.
+# The changes are made in the regex to test whether
+# the performance will be affected.
+# Specifically, it is obvious that the regex is expanded, and 
+# the performance, like runtime, should be longer than before.
+
+# before
+SecRule REQUEST_METHOD "@rx ^(?:GET|HEAD)$" \
+
+# after ( 200 random words which have 3 - 5 digits are added)
+SecRule REQUEST_METHOD "@rx ^(?:cat|car|road|...( 200 random words which have 3 - 5 digits)|dark|bright|GET|HEAD)$" \
+```
+
+Here are the results of running the command `poetry run report`.
+
+- cAdvisor (three thresholds are failed): While cAdvisor is used to collect the CPU and memory usage, the following figure shows that Thresholds 1, 2 and 4 failed because the matrices (CPU total/user, memory) are higher than before.
     ![report-example-cAdvisor-with-threshold](./assets/report-example-cAdvisor-with-threshold.png)
-- locust (without threshold)
+- locust (without threshold): In the figure, you can see most of the matrices are marked in red, which represents the increase of the matrices. Specifically, matrices of p50, p66, and so on are increased.
     ![report-example-locust](./assets/report-example-locust.png)
-- ftw (all thresholds are passed)
+- ftw (all thresholds are passed): In the figure, the total runtime is increased, which is expected.
     ![report-example-ftw-with-threshold](./assets/report-example-ftw-with-threshold.png)
 
 ## Pipeline Mode
