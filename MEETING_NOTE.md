@@ -276,3 +276,17 @@
 - Documentation: Tutorial, Usage, etc.
 - Plans for project migration.
 - Test cases (Continue)
+
+# Meeting 11
+
+> Aug 17, 2023
+>
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1691674261119029
+
+1. Progress
+- Documentation: Tutorial, Usage, etc.
+- Plans for project migration.
+
+2. Next Actions
+- Wrapping up! Review and continue to update the documentation.
+- Discuss the project migration and the new name for the repo.
