@@ -193,10 +193,86 @@
     - Christian: it is important to discuss these items as the GSoC is a short-term project.
 - Some interesting stories behind the CoreRuleSet shared by Christian
 
-2. Next Actions
+3. Next Actions
 
 - Fully automated the current implementation
 - To be tested: Does VM for GitHub Action supports eBPF?
 - Redesign the architecture for the framework to support both interactive and pipeline-based
 - Integrate the concept of "threshold" into the architecture
 - Discuss/Draft 2-nd phase objective/goals
+
+# Regular updates
+
+> Jul 20, 2023
+>
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1689861012777359
+
+1. Progress
+
+- [x] Fully automated the current implementation: Done
+- [x] Redesign the architecture for the framework to support both interactive and pipeline-based
+- [x] Integrate the concept of "threshold" into the architecture
+- [ ] Discuss/Draft 2-nd phase objective/goals: WIP
+- [ ] To be tested: Does VM for GitHub Action supports eBPF?: TBD
+
+2. Next Actions
+
+- Discuss/Draft 2nd phase objective/goals (Cont.)
+- Bug/Changes from previous comments.
+- Create reports for cAdvisor/locust.
+- Add threshold for cAdvisor/locust
+
+# Meeting 9
+
+> Jul 27, 2023
+>
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1690464215034819
+
+1. Progress
+
+- [x] Finalize 2nd phase objective/goals
+- [x] Bug/Changes from previous comments
+- [x] Create reports for cAdvisor/locust
+- [x] Add threshold configurations for cAdvisor/locust
+
+2. Next Actions
+- Update test cases
+- Integrate into GitHub Action
+- Fine-tune output/blocking for pipelines
+- Documentation
+
+# Regular updates
+
+> Aug 3, 2023
+>
+> Thread: https://owasp.slack.com/archives/C03EXFGM4FJ/p1691091689381609
+
+1. Progress
+- [ ] Update test cases: working on integration test
+- [x] Integrate into GitHub Action: go-ftw completed [(link)](https://github.com/dextermallo/GSoC-2023/actions/runs/5716710386), cAdvisor has an OS issue (WIP)
+- [x] Fine-tune output/blocking for pipelines: looking for better utils that can put summary as comments directly
+- [x] Documentation: WIP
+
+2. Next Actions
+- Update test cases
+- Integrate into GitHub Action
+- Fine-tune output/blocking for pipelines
+- Documentation
+
+# Meeting 10
+
+> Aug 10, 2023
+>
+> Thread: 
+
+1. Progress
+- [x] Update test cases (Continue)
+- [x] Integrate into GitHub Action: locust and ftw completed, cAdvisor requires gcr, which is not supported by GitHub Action (On-hold)
+- [x] Fine-tune output/blocking for pipelines
+- [x] Code Documentation
+- [x] Updates for the roadmaps for the framework ((link))[https://github.com/dextermallo/GSoC-2023/issues/9]
+
+2. Next Actions
+- Documentation: Tutorial, Usage, etc.
+- Plans for project migration.
+- Test cases (Continue)

@@ -1,6 +1,23 @@
 {
     "cSpell.words": [
+        "asciichart",
+        "autouse",
+        "CADVISOR",
+        "diskio",
+        "dotenv",
+        "GOFTW",
         "GSOC",
-        "OWASP"
+        "hspace",
+        "levelname",
+        "matplotlib",
+        "modsec",
+        "OWASP",
+        "pyplot",
+        "termcolor",
+        "xticks",
+        "yticks"
+    ],
+    "python.analysis.extraPaths": [
+        "./src/interface"
     ]
 }
